@@ -48,8 +48,8 @@ mkdir -p "$WorkRoot" "$OutputDirectory"
 export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-1700000000}"
 export LC_ALL=C
 export TZ=UTC
-export CFLAGS="${CFLAGS:--O2 -fPIC -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fno-plt -Wformat -Werror=format-security}"
-export CXXFLAGS="$CFLAGS"
+export CFLAGS="${CFLAGS:-$(OkraHardeningFlags)}"
+export CXXFLAGS="${CXXFLAGS:-$CFLAGS}"
 export LDFLAGS="${LDFLAGS:--Wl,-z,relro,-z,now -Wl,-z,noexecstack}"
 
 InstallBuildDependencies

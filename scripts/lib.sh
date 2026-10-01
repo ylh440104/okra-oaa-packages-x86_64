@@ -16,6 +16,18 @@ OkraArch() {
 	esac
 }
 
+# OkraHardeningFlags() - print the default CFLAGS used for every package.
+# @None. Set OKRA_NO_FORMAT_HARDENING=1 to drop -Werror=format-security, which
+# upstream trees such as GCC's bundled libcpp do not build cleanly under.
+# Return: 0. Prints the flag list on one line.
+OkraHardeningFlags() {
+	local Flags="-O2 -fPIC -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fno-plt -Wformat"
+	if [ "${OKRA_NO_FORMAT_HARDENING:-0}" != "1" ]; then
+		Flags="$Flags -Werror=format-security"
+	fi
+	printf '%s' "$Flags"
+}
+
 # InstallBuildDependencies() - install the host tools a recipe asks for.
 # @None. Reads ExtraPackages from the calling environment.
 # Return: 0 when nothing to do or apt succeeded, non-zero when apt failed.
