@@ -1,0 +1,12 @@
+# Checked-out sources of the okrapm toolchain (cloned by CI)
+/okrapm/
+# CI staging directories
+/.publish/
+/artifacts/
+/publish/
+# Local build trees
+/build/
+/okra-build/
+# Archives never belong in git; out/ only keeps .sha256 and .sources
+*.oaa
+*.oaa.sha256

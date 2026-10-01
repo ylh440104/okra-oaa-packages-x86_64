@@ -1,0 +1,75 @@
+name: Bootstrap self-hosting toolchain
+
+on:
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: 'Space separated toolchain package order'
+        required: false
+        default: 'glibc binutils gcc make bash coreutils'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/build-toolchain.sh'
+      - 'scripts/lib.sh'
+      - 'packages/glibc.conf'
+      - 'packages/binutils.conf'
+      - 'packages/gcc.conf'
+      - 'packages/make.conf'
+      - 'packages/bash.conf'
+      - 'packages/coreutils.conf'
+      - '.github/workflows/bootstrap-toolchain.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  toolchain:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      OKRA_TOOLCHAIN: /opt/okra-toolchain
+      OKRA_TOOLCHAIN_PACKAGES: ${{ github.event.inputs.packages || 'glibc binutils gcc make bash coreutils' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install host build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential cmake curl ca-certificates tar xz-utils zstd gzip \
+            bzip2 lzip file rsync python3 pkg-config fakeroot wget
+          sudo mkdir -p "$OKRA_TOOLCHAIN"
+          sudo chown "$(id -u):$(id -g)" "$OKRA_TOOLCHAIN"
+
+      - name: Fetch the okrapm toolchain sources
+        run: |
+          git clone --depth 1 https://github.com/OkraLinux/okrapm.git okrapm
+          chmod +x okrapm/oaatools/*
+
+      - name: Build the self-hosting toolchain
+        run: ./scripts/build-toolchain.sh
+
+      - name: Report what the Okra toolchain provides
+        run: |
+          set -euo pipefail
+          export PATH="$OKRA_TOOLCHAIN/usr/bin:$PATH"
+          export LD_LIBRARY_PATH="$OKRA_TOOLCHAIN/usr/lib:$OKRA_TOOLCHAIN/usr/lib64:$OKRA_TOOLCHAIN/lib64"
+          "$OKRA_TOOLCHAIN/usr/bin/lunar" --root "$OKRA_TOOLCHAIN/var/lib/lunar" list || true
+          find "$OKRA_TOOLCHAIN" -maxdepth 3 -name 'ld-linux*' -o -maxdepth 3 -name 'libc.so*' | head
+
+      - name: Package the toolchain for reuse
+        run: |
+          set -euo pipefail
+          Archive="$RUNNER_TEMP/okra-toolchain.tar.zst"
+          tar --zstd -cf "$Archive" -C "$(dirname "$OKRA_TOOLCHAIN")" "$(basename "$OKRA_TOOLCHAIN")"
+          sha256sum "$Archive" | tee "$RUNNER_TEMP/okra-toolchain.tar.zst.sha256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: okra-toolchain
+          path: |
+            ${{ runner.temp }}/okra-toolchain.tar.zst
+            ${{ runner.temp }}/okra-toolchain.tar.zst.sha256
+          if-no-files-found: error
+          retention-days: 14
