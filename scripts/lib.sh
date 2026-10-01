@@ -41,8 +41,10 @@ ApplyToolchainEnvironment() {
 	export CPATH="$ToolchainRoot/usr/include${CPATH:+:$CPATH}"
 	export LIBRARY_PATH="$ToolchainRoot/usr/lib:$ToolchainRoot/usr/lib64:$ToolchainRoot/lib64${LIBRARY_PATH:+:$LIBRARY_PATH}"
 	export LD_LIBRARY_PATH="$ToolchainRoot/usr/lib:$ToolchainRoot/usr/lib64:$ToolchainRoot/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-	local GccDirectory
-	GccDirectory="$(find "$ToolchainRoot/usr/lib/gcc" -maxdepth 2 -mindepth 2 -type d 2>/dev/null | head -1)"
+	local GccDirectory=""
+	if [ -d "$ToolchainRoot/usr/lib/gcc" ]; then
+		GccDirectory="$(find "$ToolchainRoot/usr/lib/gcc" -maxdepth 2 -mindepth 2 -type d 2>/dev/null | head -1 || true)"
+	fi
 	if [ -n "$GccDirectory" ]; then
 		export LIBRARY_PATH="$GccDirectory:$LIBRARY_PATH"
 		export LD_LIBRARY_PATH="$GccDirectory:$LD_LIBRARY_PATH"
