@@ -32,7 +32,8 @@ Abi="OAABI1"
 [ -n "$Name" ] || Name="$PackageName"
 [ -n "$Version" ] || { echo "recipe missing Version" >&2; exit 1; }
 [ -n "$Url" ] || { echo "recipe missing Url" >&2; exit 1; }
-[ -n "$Architecture" ] || Architecture="$(OkraArch)"
+[ -n "$Architecture" ] || Architecture="$(OkraTargetArch)"
+RequireTargetHost
 
 WorkRoot="${RUNNER_TEMP:-/tmp}/okra-build/${Name}"
 SourceDirectory="$WorkRoot/source"
@@ -87,6 +88,7 @@ else
 fi
 
 if [ "${OKRA_PACKAGE_MODE:-package}" = "toolchain" ]; then
+	RequireTargetHost
 	ToolchainRoot="${OKRA_TOOLCHAIN:-/opt/okra-toolchain}"
 	echo "== installing build products into $ToolchainRoot"
 	mkdir -p "$ToolchainRoot"
@@ -102,6 +104,8 @@ find "$PackageDirectory" -name '.l2s.*' -delete
 find "$PackageDirectory/rootfs" -name '*.la' -delete
 
 InstalledSize="$(du -sm "$PackageDirectory/rootfs" | cut -f1)"
+
+VerifyElfArchitecture "$PackageDirectory/rootfs" "$Architecture"
 
 DependencyList=()
 for Dependency in ${Dependencies[@]+"${Dependencies[@]}"}; do
@@ -176,6 +180,24 @@ mkdir -p "$MetadataOutput"
 cp -f "$ArtifactDirectory/$ArchiveName.sha256" "$MetadataOutput/"
 echo "${SourceSum}  ${Url}" > "$MetadataOutput/${Name}-${Version}-${Release}.sources"
 echo "${SourceSum}  ${Url}" > "$ArtifactDirectory/${Name}-${Version}-${Release}.sources"
+
+# A build record makes the architecture claim auditable after the fact.
+{
+	echo "package: $Namespace.$Name"
+	echo "version: $Version"
+	echo "release: $Release"
+	echo "target_arch: $Architecture"
+	echo "host_arch: $(OkraHostArch)"
+	echo "host_uname: $(uname -srm)"
+	echo "elf_machine: $(ElfMachineForArch "$Architecture")"
+	echo "source: $Url"
+	echo "source_sha256: $SourceSum"
+	echo "artifact: $ArchiveName"
+	echo "artifact_sha256: $(awk '{print $1}' "$ArtifactDirectory/$ArchiveName.sha256")"
+} > "$ArtifactDirectory/${Name}-${Version}-${Release}.build"
+cp -f "$ArtifactDirectory/${Name}-${Version}-${Release}.build" "$MetadataOutput/"
+echo "== build record"
+cat "$ArtifactDirectory/${Name}-${Version}-${Release}.build"
 
 echo "== built $ArchiveName"
 cat "$ArtifactDirectory/$ArchiveName.sha256"

@@ -26,7 +26,28 @@ This repository rebuilds the same recipe set against the current toolchain:
 | `scripts/build-toolchain.sh` | Builds okrapm and installs a self-hosting Okra toolchain (glibc, binutils, gcc, make, bash, coreutils). |
 | `out/<name>/` | Committed metadata only: the `.sha256` sidecar and the `.sources` record. |
 | `.github/workflows/build-packages.yml` | CI: one matrix job per recipe, then publish. |
-| `.github/workflows/bootstrap-toolchain.yml` | CI: builds the self-hosting toolchain and caches it. |
+| `.github/workflows/bootstrap-toolchain.yml` | CI: builds the self-hosting toolchain and runs its own `uname`. |
+| `scripts/selftest.sh` | Checks the architecture guards without building anything. |
+
+## Architecture
+
+These packages are **x86_64**, and the repository is built so that cannot drift:
+
+* `OKRA_TARGET_ARCH` defaults to `x86_64` and is never inferred from the build
+  host. Every workflow also exports it explicitly and asserts `uname -m` is
+  `x86_64` before doing any work.
+* `RequireTargetHost` fails the build when the host does not match the target, so
+  a foreign toolchain can never label its binaries as `x86_64`. Set
+  `OKRA_CROSS_COMPILE=1` only when a real cross toolchain is in use.
+* After staging, `VerifyElfArchitecture` walks the whole payload and checks every
+  ELF for 64-bit class, little endian data and `e_machine == 62`. One mismatch
+  fails the build.
+* Each artifact ships a `.build` record next to its `.sha256`:
+  `target_arch`, `host_arch`, `host_uname`, `elf_machine`, the source URL and
+  both hashes. `out/<name>/` keeps it, so the architecture claim stays auditable
+  after the fact.
+* `bootstrap-toolchain.yml` finishes by running `uname -m` from the Okra
+  toolchain's own coreutils and asserting it prints `x86_64`.
 
 ## Building
 

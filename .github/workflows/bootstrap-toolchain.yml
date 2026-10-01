@@ -29,9 +29,24 @@ jobs:
     timeout-minutes: 360
     env:
       OKRA_TOOLCHAIN: /opt/okra-toolchain
+      OKRA_TARGET_ARCH: x86_64
       OKRA_TOOLCHAIN_PACKAGES: ${{ github.event.inputs.packages || 'glibc binutils gcc make bash coreutils' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Assert the runner really is x86_64
+        run: |
+          set -euo pipefail
+          echo "uname -m: $(uname -m)"
+          echo "uname -a: $(uname -a)"
+          test "$(uname -m)" = "x86_64" || {
+            echo "this repository only produces x86_64 packages" >&2
+            exit 1
+          }
+          test "$OKRA_TARGET_ARCH" = "x86_64"
+
+      - name: Run the architecture self tests
+        run: ./scripts/selftest.sh
 
       - name: Install host build tools
         run: |
@@ -58,6 +73,19 @@ jobs:
           "$OKRA_TOOLCHAIN/usr/bin/lunar" --root "$OKRA_TOOLCHAIN/var/lib/lunar" list || true
           find "$OKRA_TOOLCHAIN" -maxdepth 3 -name 'ld-linux*' -o -maxdepth 3 -name 'libc.so*' | head
 
+      - name: Run the Okra toolchain's own uname
+        run: |
+          set -euo pipefail
+          OkraUname="$OKRA_TOOLCHAIN/usr/bin/uname"
+          test -x "$OkraUname" || { echo "coreutils did not install uname" >&2; exit 1; }
+          echo "Okra uname -m:  $("$OkraUname" -m)"
+          echo "Okra uname -a:  "$("$OkraUname" -a)"
+          test "$("$OkraUname" -m)" = "x86_64" || {
+            echo "the Okra toolchain reports $("$OkraUname" -m), expected x86_64" >&2
+            exit 1
+          }
+          echo "Okra toolchain is $("$OkraUname" -m)" > "$RUNNER_TEMP/okra-toolchain.uname"
+
       - name: Package the toolchain for reuse
         run: |
           set -euo pipefail
@@ -71,5 +99,6 @@ jobs:
           path: |
             ${{ runner.temp }}/okra-toolchain.tar.zst
             ${{ runner.temp }}/okra-toolchain.tar.zst.sha256
+            ${{ runner.temp }}/okra-toolchain.uname
           if-no-files-found: error
           retention-days: 14

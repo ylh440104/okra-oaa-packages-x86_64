@@ -4,16 +4,45 @@
 
 RepositoryRoot="${RepositoryRoot:?RepositoryRoot must be set}"
 
-# OkraArch() - print the Okra architecture name for this build.
-# @None
+# OkraTargetArch() - print the architecture these packages are built for.
+# @None. Reads OKRA_TARGET_ARCH, default x86_64. This is a declared constant on
+# purpose: the target architecture is never inferred from the build host, so a
+# package can never end up labelled with an architecture it was not built for.
 # Return: 0. Prints x86_64, aarch64 or riscv64.
-OkraArch() {
+OkraTargetArch() {
+	printf '%s' "${OKRA_TARGET_ARCH:-x86_64}"
+}
+
+# OkraHostArch() - print the architecture of the machine running the build.
+# @None.
+# Return: 0. Prints the Okra spelling of the uname machine name.
+OkraHostArch() {
 	case "$(uname -m)" in
-		x86_64|amd64)  printf '%s' x86_64 ;;
-		aarch64|arm64) printf '%s' aarch64 ;;
-		riscv64)       printf '%s' riscv64 ;;
-		*)             uname -m ;;
+		amd64) printf '%s' x86_64 ;;
+		arm64) printf '%s' aarch64 ;;
+		*)     uname -m ;;
 	esac
+}
+
+# RequireTargetHost() - refuse to label foreign binaries as the target arch.
+# @None. OKRA_CROSS_COMPILE=1 downgrades the refusal to a warning.
+# Return: 0 when the host matches the target, non-zero otherwise.
+RequireTargetHost() {
+	local Target Host
+	Target="$(OkraTargetArch)"
+	Host="$(OkraHostArch)"
+	if [ "$Host" = "$Target" ]; then
+		echo "== target $Target on host $Host"
+		return 0
+	fi
+	if [ "${OKRA_CROSS_COMPILE:-0}" = "1" ]; then
+		echo "!! cross compiling $Target on $Host"
+		return 0
+	fi
+	echo "this repository produces $Target packages; the build host is $Host" >&2
+	echo "refusing to label $Host binaries as $Target" >&2
+	echo "run on a $Target host, or set OKRA_CROSS_COMPILE=1 with a $Target toolchain" >&2
+	return 1
 }
 
 # OkraHardeningFlags() - print the default CFLAGS used for every package.
@@ -61,6 +90,49 @@ ApplyToolchainEnvironment() {
 		export LIBRARY_PATH="$GccDirectory:$LIBRARY_PATH"
 		export LD_LIBRARY_PATH="$GccDirectory:$LD_LIBRARY_PATH"
 	fi
+	return 0
+}
+
+# ElfMachineForArch() - print the ELF e_machine value expected for an arch.
+# @Architecture: x86_64, aarch64 or riscv64.
+# Return: 0 and the decimal machine value, or 1 for an unknown architecture.
+ElfMachineForArch() {
+	case "$1" in
+		x86_64)  printf '%s' 62 ;;
+		aarch64) printf '%s' 183 ;;
+		riscv64) printf '%s' 243 ;;
+		*)       return 1 ;;
+	esac
+}
+
+# VerifyElfArchitecture() - prove every ELF in the payload matches the target.
+# @Rootfs: the staged rootfs directory of the package.
+# @Architecture: the architecture declared in meta.yaml.
+# Every regular file is inspected. Anything whose magic starts with \x7fELF is
+# checked for 64-bit class, little endian data and the expected e_machine. A
+# single mismatch fails the build, so a package can never claim an architecture
+# that its payload does not actually target.
+# Return: 0 when every ELF matches, 1 otherwise.
+VerifyElfArchitecture() {
+	local Rootfs="$1" Architecture="$2"
+	local Expected Magic Class Data Machine Relative Found=0
+	Expected="$(ElfMachineForArch "$Architecture")" || {
+		echo "unknown target architecture $Architecture" >&2
+		return 1
+	}
+	while IFS= read -r -d '' Found; do
+		Magic="$(od -An -N4 -tx1 "$Found" 2>/dev/null | tr -d ' \n')"
+		[ "$Magic" = "7f454c46" ] || continue
+		Class="$(od -An -N1 -j4 -tu1 "$Found" 2>/dev/null | tr -d ' ')"
+		Data="$(od -An -N1 -j5 -tu1 "$Found" 2>/dev/null | tr -d ' ')"
+		Machine="$(od -An -N2 -j18 -tu2 "$Found" 2>/dev/null | tr -d ' ')"
+		Relative="${Found#"$Rootfs"/}"
+		if [ "$Class" != "2" ] || [ "$Data" != "1" ] || [ "$Machine" != "$Expected" ]; then
+			echo "ELF check failed: $Relative class=$Class data=$Data machine=$Machine expected=$Expected" >&2
+			return 1
+		fi
+	done < <(find "$Rootfs" -type f -print0)
+	echo "== every ELF in the payload is $Architecture (e_machine=$Expected)"
 	return 0
 }
 

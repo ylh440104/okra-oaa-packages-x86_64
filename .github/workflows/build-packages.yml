@@ -60,8 +60,24 @@ jobs:
         package: ${{ fromJson(needs.collect.outputs.packages) }}
     name: ${{ matrix.package }}
     timeout-minutes: 300
+    env:
+      OKRA_TARGET_ARCH: x86_64
     steps:
       - uses: actions/checkout@v4
+
+      - name: Assert the runner really is x86_64
+        run: |
+          set -euo pipefail
+          echo "uname -m: $(uname -m)"
+          echo "uname -a: $(uname -a)"
+          test "$(uname -m)" = "x86_64" || {
+            echo "this repository only produces x86_64 packages" >&2
+            exit 1
+          }
+          test "$OKRA_TARGET_ARCH" = "x86_64"
+
+      - name: Run the architecture self tests
+        run: ./scripts/selftest.sh
 
       - name: Install host build tools
         run: |
@@ -82,8 +98,10 @@ jobs:
 
       - name: Verify the artifact
         run: |
+          set -euo pipefail
           ./okrapm/oaatools/oaatools verify "$RUNNER_TEMP/okra-artifacts/${{ matrix.package }}"/*.oaa
           ./okrapm/oaatools/oaatools inspect "$RUNNER_TEMP/okra-artifacts/${{ matrix.package }}"/*.oaa
+          test "$(grep -c '^target_arch: x86_64$' "$RUNNER_TEMP/okra-artifacts/${{ matrix.package }}"/*.build)" = "1"
 
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
@@ -93,6 +111,7 @@ jobs:
             ${{ runner.temp }}/okra-artifacts/${{ matrix.package }}/*.oaa
             ${{ runner.temp }}/okra-artifacts/${{ matrix.package }}/*.sha256
             ${{ runner.temp }}/okra-artifacts/${{ matrix.package }}/*.sources
+            ${{ runner.temp }}/okra-artifacts/${{ matrix.package }}/*.build
           if-no-files-found: error
 
   commit-metadata:
@@ -110,7 +129,7 @@ jobs:
           merge-multiple: false
           path: artifacts
 
-      - name: Collect checksums and source records
+      - name: Collect checksums, source records and build records
         run: |
           set -euo pipefail
           mkdir -p out
@@ -120,6 +139,7 @@ jobs:
             mkdir -p "out/$name"
             cp "$directory"/*.sha256 "out/$name/" 2>/dev/null || true
             cp "$directory"/*.sources "out/$name/" 2>/dev/null || true
+            cp "$directory"/*.build "out/$name/" 2>/dev/null || true
           done
           find out -type f | sort
 

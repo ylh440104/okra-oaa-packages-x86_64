@@ -10,6 +10,7 @@ ToolchainRoot="${OKRA_TOOLCHAIN:-/opt/okra-toolchain}"
 export OKRA_TOOLCHAIN="$ToolchainRoot"
 OkrapmSource="$RepositoryRoot/okrapm"
 
+RequireTargetHost
 [ -d "$OkrapmSource" ] || { echo "okrapm source not found at $OkrapmSource" >&2; exit 1; }
 
 echo "== building okrapm"
