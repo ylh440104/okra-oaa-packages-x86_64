@@ -1,5 +1,12 @@
-name: Bootstrap self-hosting toolchain
+name: Bootstrap self-hosting toolchain (experimental)
 
+# This workflow is experimental and intentionally manual. It builds a
+# self-hosting Okra toolchain (glibc, binutils, gcc, make, bash, coreutils)
+# on top of the freshly built Okra glibc. Bootstrapping gcc against a
+# non-system glibc needs a staged sysroot and -B startfile paths that this
+# workflow does not wire up yet, so it can fail part way through. The package
+# pipeline in build-packages.yml is the supported path and does not depend on
+# this workflow.
 on:
   workflow_dispatch:
     inputs:
@@ -7,18 +14,6 @@ on:
         description: 'Space separated toolchain package order'
         required: false
         default: 'glibc binutils gcc make bash coreutils'
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/build-toolchain.sh'
-      - 'scripts/lib.sh'
-      - 'packages/glibc.conf'
-      - 'packages/binutils.conf'
-      - 'packages/gcc.conf'
-      - 'packages/make.conf'
-      - 'packages/bash.conf'
-      - 'packages/coreutils.conf'
-      - '.github/workflows/bootstrap-toolchain.yml'
 
 permissions:
   contents: read

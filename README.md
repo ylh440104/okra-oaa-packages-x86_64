@@ -26,7 +26,7 @@ This repository rebuilds the same recipe set against the current toolchain:
 | `scripts/build-toolchain.sh` | Builds okrapm and installs a self-hosting Okra toolchain (glibc, binutils, gcc, make, bash, coreutils). |
 | `out/<name>/` | Committed metadata only: the `.sha256` sidecar and the `.sources` record. |
 | `.github/workflows/build-packages.yml` | CI: one matrix job per recipe, then publish. |
-| `.github/workflows/bootstrap-toolchain.yml` | CI: builds the self-hosting toolchain and runs its own `uname`. |
+| `.github/workflows/bootstrap-toolchain.yml` | Experimental, manual only: self-hosting toolchain plus its own `uname`. |
 | `scripts/selftest.sh` | Checks the architecture guards without building anything. |
 
 ## Architecture
@@ -47,7 +47,8 @@ These packages are **x86_64**, and the repository is built so that cannot drift:
   both hashes. `out/<name>/` keeps it, so the architecture claim stays auditable
   after the fact.
 * `bootstrap-toolchain.yml` finishes by running `uname -m` from the Okra
-  toolchain's own coreutils and asserting it prints `x86_64`.
+  toolchain's own coreutils, through the Okra loader, and asserts it prints
+  `x86_64`. That workflow is experimental and manual; see its header comment.
 
 ## Building
 
