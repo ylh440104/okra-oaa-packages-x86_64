@@ -45,5 +45,6 @@ for PackageName in "${ToolchainPackages[@]}"; do
 done
 
 echo "== toolchain ready"
+OkraRunEnvironment
 "$ToolchainRoot/usr/bin/lunar" --root "$ToolchainRoot/var/lib/lunar" status || true
 find "$ToolchainRoot/usr/bin" -maxdepth 1 -type f -o -type l | head -40

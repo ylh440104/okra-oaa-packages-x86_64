@@ -78,13 +78,19 @@ jobs:
           set -euo pipefail
           OkraUname="$OKRA_TOOLCHAIN/usr/bin/uname"
           test -x "$OkraUname" || { echo "coreutils did not install uname" >&2; exit 1; }
-          echo "Okra uname -m:  $("$OkraUname" -m)"
-          echo "Okra uname -a:  "$("$OkraUname" -a)"
-          test "$("$OkraUname" -m)" = "x86_64" || {
-            echo "the Okra toolchain reports $("$OkraUname" -m), expected x86_64" >&2
+          Loader="$OKRA_TOOLCHAIN/lib64/ld-linux-x86-64.so.2"
+          [ -f "$Loader" ] || Loader="$(find "$OKRA_TOOLCHAIN" -maxdepth 3 -name 'ld-linux-x86-64.so.2' -type f | head -1)"
+          test -f "$Loader" || { echo "no Okra dynamic loader found" >&2; exit 1; }
+          echo "Okra loader:    $Loader"
+          OkraMachine="$("$Loader" --library-path "$OKRA_TOOLCHAIN/usr/lib:$OKRA_TOOLCHAIN/usr/lib64:$OKRA_TOOLCHAIN/lib64" "$OkraUname" -m)"
+          OkraAll="$("$Loader" --library-path "$OKRA_TOOLCHAIN/usr/lib:$OKRA_TOOLCHAIN/usr/lib64:$OKRA_TOOLCHAIN/lib64" "$OkraUname" -a)"
+          echo "Okra uname -m:  $OkraMachine"
+          echo "Okra uname -a:  $OkraAll"
+          test "$OkraMachine" = "x86_64" || {
+            echo "the Okra toolchain reports $OkraMachine, expected x86_64" >&2
             exit 1
           }
-          echo "Okra toolchain is $("$OkraUname" -m)" > "$RUNNER_TEMP/okra-toolchain.uname"
+          echo "$OkraMachine" > "$RUNNER_TEMP/okra-toolchain.uname"
 
       - name: Package the toolchain for reuse
         run: |

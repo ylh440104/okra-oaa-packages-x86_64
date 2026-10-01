@@ -70,6 +70,9 @@ InstallBuildDependencies() {
 
 # ApplyToolchainEnvironment() - put the Okra toolchain ahead of the host one.
 # @None. Uses OKRA_TOOLCHAIN, default /opt/okra-toolchain.
+# Only compile and link search paths are exported. LD_LIBRARY_PATH is
+# deliberately left alone: pointing the host's make, gcc or ld at the freshly
+# built Okra glibc makes them load a foreign libc and die with SIGSEGV.
 # Return: 0. Warns and keeps the host compiler when no toolchain is present.
 ApplyToolchainEnvironment() {
 	local ToolchainRoot="${OKRA_TOOLCHAIN:-/opt/okra-toolchain}"
@@ -81,16 +84,38 @@ ApplyToolchainEnvironment() {
 	export PATH="$ToolchainRoot/usr/bin:$PATH"
 	export CPATH="$ToolchainRoot/usr/include${CPATH:+:$CPATH}"
 	export LIBRARY_PATH="$ToolchainRoot/usr/lib:$ToolchainRoot/usr/lib64:$ToolchainRoot/lib64${LIBRARY_PATH:+:$LIBRARY_PATH}"
-	export LD_LIBRARY_PATH="$ToolchainRoot/usr/lib:$ToolchainRoot/usr/lib64:$ToolchainRoot/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 	local GccDirectory=""
 	if [ -d "$ToolchainRoot/usr/lib/gcc" ]; then
 		GccDirectory="$(find "$ToolchainRoot/usr/lib/gcc" -maxdepth 2 -mindepth 2 -type d 2>/dev/null | head -1 || true)"
 	fi
 	if [ -n "$GccDirectory" ]; then
 		export LIBRARY_PATH="$GccDirectory:$LIBRARY_PATH"
-		export LD_LIBRARY_PATH="$GccDirectory:$LD_LIBRARY_PATH"
 	fi
 	return 0
+}
+
+# OkraRunEnvironment() - load the Okra runtime for executing Okra binaries.
+# @None. Uses OKRA_TOOLCHAIN.
+# Sets LD_LIBRARY_PATH for one command, so an Okra binary can be run without
+# exposing the host's own tools to the Okra glibc.
+# Return: 0.
+OkraRunEnvironment() {
+	local ToolchainRoot="${OKRA_TOOLCHAIN:-/opt/okra-toolchain}"
+	export LD_LIBRARY_PATH="$ToolchainRoot/usr/lib:$ToolchainRoot/usr/lib64:$ToolchainRoot/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+	return 0
+}
+
+# OkraDynamicLoader() - print the path of the Okra dynamic loader.
+# @None. Uses OKRA_TOOLCHAIN.
+# Return: 0 and the loader path, or 1 when the toolchain has no loader yet.
+OkraDynamicLoader() {
+	local ToolchainRoot="${OKRA_TOOLCHAIN:-/opt/okra-toolchain}"
+	local Loader=""
+	if [ -d "$ToolchainRoot" ]; then
+		Loader="$(find "$ToolchainRoot" -maxdepth 3 -name 'ld-linux-x86-64.so.2' -type f 2>/dev/null | head -1 || true)"
+	fi
+	[ -n "$Loader" ] || return 1
+	printf '%s' "$Loader"
 }
 
 # ElfMachineForArch() - print the ELF e_machine value expected for an arch.
