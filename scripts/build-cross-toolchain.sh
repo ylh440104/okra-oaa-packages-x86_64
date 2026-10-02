@@ -249,7 +249,10 @@ BuildGlibc() {
 	# -lstdc++ and -lgcc_s, neither of which exists until stage 2 installs
 	# them. Nothing else in glibc needs a C++ compiler at build time.
 	make -j"$Jobs" CXX=
-	make install install_root="$Sysroot"
+	# install must carry the same CXX= override: without it make re-enters the
+	# C++ branch, tries to rebuild links-dso-program, and fails on a target
+	# that only the C++ configuration defines.
+	make install install_root="$Sysroot" CXX=
 	[ -f "$Sysroot/usr/lib/libc.so.6" ] || { echo "glibc was not installed into the sysroot" >&2; return 1; }
 	[ -f "$Sysroot/lib64/ld-linux-x86-64.so.2" ] || { echo "the Okra dynamic loader is missing" >&2; return 1; }
 }
