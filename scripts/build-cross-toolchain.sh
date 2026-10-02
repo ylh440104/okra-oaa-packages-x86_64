@@ -76,13 +76,15 @@ RecipeUrl() {
 
 # FetchSource() - download an upstream tarball into the source cache.
 # @Url: the tarball url.
+# Progress goes to standard error; standard output carries only the path, so
+# callers can capture it with $(...).
 # Return: 0 and the local path.
 FetchSource() {
 	local Url="$1"
 	local Archive="$SourceCache/$(basename "${Url%%\?*}")"
 	if [ ! -f "$Archive" ]; then
-		echo "== fetching $(basename "$Archive")"
-		curl -fsSL --http1.1 --retry 5 --retry-delay 3 --retry-all-errors -o "$Archive" "$Url"
+		echo "== fetching $(basename "$Archive")" >&2
+		curl -fsSL --http1.1 --retry 5 --retry-delay 3 --retry-all-errors -o "$Archive" "$Url" >&2
 	fi
 	[ -s "$Archive" ] || { echo "empty source archive $Archive" >&2; return 1; }
 	printf '%s' "$Archive"
