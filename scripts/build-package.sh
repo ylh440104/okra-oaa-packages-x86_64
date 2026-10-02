@@ -97,6 +97,19 @@ if [ "${OKRA_PACKAGE_MODE:-package}" = "toolchain" ]; then
 	exit 0
 fi
 
+if [ "${OKRA_PACKAGE_MODE:-package}" = "bootstrap" ]; then
+	# A bootstrapped package is built with the Okra cross toolchain, so it is
+	# linked against the Okra glibc, and installed into the Okra sysroot as
+	# well as packaged. The .bootstrapped suffix keeps it distinct from the
+	# host-built archive of the same name.
+	#
+	# These have to be set before the build runs: ApplyToolchainEnvironment
+	# reads OKRA_CROSS_TOOLCHAIN to decide whether to use the cross compiler,
+	# and the build itself is what needs the cross environment.
+	export OKRA_CROSS_TOOLCHAIN=1
+	export OKRA_ARTIFACT_SUFFIX="${OKRA_ARTIFACT_SUFFIX:-.bootstrapped}"
+fi
+
 echo "== assembling package"
 mkdir -p "$PackageDirectory/rootfs" "$PackageDirectory/scripts"
 cp -a "$InstallRoot"/. "$PackageDirectory/rootfs"/
@@ -166,13 +179,22 @@ if [ -z "$OaaToolsDirectory" ]; then
 fi
 [ -n "$OaaToolsDirectory" ] || { echo "cannot locate the oaa toolkit; set OKRA_OAATOOLS" >&2; exit 1; }
 
-ArchiveName="${Name}-${Version}-${Release}.${Architecture}.oaa"
+ArchiveName="${Name}-${Version}-${Release}.${Architecture}${OKRA_ARTIFACT_SUFFIX:-}.oaa"
 ArtifactDirectory="${RUNNER_TEMP:-/tmp}/okra-artifacts/$Name"
 rm -rf "$ArtifactDirectory"
 mkdir -p "$ArtifactDirectory"
 
 echo "== packing with $OaaToolsDirectory/oaa-build"
 "$OaaToolsDirectory/oaa-build" "$PackageDirectory" -o "$ArtifactDirectory/$ArchiveName"
+
+if [ "${OKRA_PACKAGE_MODE:-package}" = "bootstrap" ]; then
+	# The bootstrapped payload also becomes part of the Okra sysroot, so later
+	# packages in the same run can compile and link against it.
+	SysrootPath="${OKRA_SYSROOT:-${OKRA_TOOLCHAIN:-/opt/okra-toolchain}/okra-sysroot}"
+	echo "== installing build products into $SysrootPath"
+	mkdir -p "$SysrootPath"
+	cp -a "$InstallRoot"/. "$SysrootPath"/
+fi
 
 MetadataOutput="$OutputDirectory/$Name"
 rm -rf "$MetadataOutput"

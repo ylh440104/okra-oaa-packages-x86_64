@@ -1,31 +1,44 @@
 name: Bootstrap self-hosting toolchain (experimental)
 
-# This workflow is experimental and intentionally manual. It builds a
-# self-hosting Okra toolchain (glibc, binutils, gcc, make, bash, coreutils)
-# on top of the freshly built Okra glibc. Bootstrapping gcc against a
-# non-system glibc needs a staged sysroot and -B startfile paths that this
-# workflow does not wire up yet, so it can fail part way through. The package
-# pipeline in build-packages.yml is the supported path and does not depend on
-# this workflow.
+# This workflow is experimental and manual. It builds a self-hosting Okra
+# toolchain and then rebuilds every package with it, which is what makes the
+# result self-hosted rather than host-built.
+#
+# Why a cross toolchain: the Okra userland has to be linked against the Okra
+# glibc, not the host glibc. Pointing a host compiler at the Okra headers
+# produces objects whose headers and libraries disagree, which is why the
+# earlier host-native attempt failed with "C compiler cannot create
+# executables". scripts/build-cross-toolchain.sh therefore builds
+# x86_64-okra-linux-gnu with a sysroot of its own, and the packages are then
+# compiled by that cross compiler with --sysroot.
+#
+# Stages:
+#   toolchain  linux headers, cross binutils, gcc stage 1, glibc, gcc stage 2
+#   bootstrap  every recipe rebuilt with the cross compiler into the sysroot
+#   verify     the Okra uname, bash and make actually run on the Okra glibc
+#
+# The supported package pipeline is build-packages.yml, which does not depend
+# on this workflow.
 on:
   workflow_dispatch:
     inputs:
       packages:
-        description: 'Space separated toolchain package order'
+        description: 'Space separated package list to bootstrap (empty builds all)'
         required: false
-        default: 'glibc binutils gcc make bash coreutils'
+        default: ''
 
 permissions:
   contents: read
+
+env:
+  OKRA_TOOLCHAIN: /opt/okra-toolchain
+  OKRA_TARGET_ARCH: x86_64
+  OKRA_JOBS: '4'
 
 jobs:
   toolchain:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
-    env:
-      OKRA_TOOLCHAIN: /opt/okra-toolchain
-      OKRA_TARGET_ARCH: x86_64
-      OKRA_TOOLCHAIN_PACKAGES: ${{ github.event.inputs.packages || 'glibc binutils gcc make bash coreutils' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -48,7 +61,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             build-essential cmake curl ca-certificates tar xz-utils zstd gzip \
-            bzip2 lzip file rsync python3 pkg-config fakeroot wget
+            bzip2 lzip file rsync python3 pkg-config fakeroot wget texinfo bison flex
           sudo mkdir -p "$OKRA_TOOLCHAIN"
           sudo chown "$(id -u):$(id -g)" "$OKRA_TOOLCHAIN"
 
@@ -57,49 +70,174 @@ jobs:
           git clone --depth 1 https://github.com/OkraLinux/okrapm.git okrapm
           chmod +x okrapm/oaatools/*
 
-      - name: Build the self-hosting toolchain
-        run: ./scripts/build-toolchain.sh
+      - name: Build the cross toolchain
+        run: ./scripts/build-cross-toolchain.sh
 
-      - name: Report what the Okra toolchain provides
+      - name: Show what the toolchain produced
         run: |
           set -euo pipefail
-          export PATH="$OKRA_TOOLCHAIN/usr/bin:$PATH"
-          export LD_LIBRARY_PATH="$OKRA_TOOLCHAIN/usr/lib:$OKRA_TOOLCHAIN/usr/lib64:$OKRA_TOOLCHAIN/lib64"
-          "$OKRA_TOOLCHAIN/usr/bin/lunar" --root "$OKRA_TOOLCHAIN/var/lib/lunar" list || true
-          find "$OKRA_TOOLCHAIN" -maxdepth 3 -name 'ld-linux*' -o -maxdepth 3 -name 'libc.so*' | head
+          echo "== cross prefix"
+          ls "$OKRA_TOOLCHAIN/cross/bin" | head -20
+          echo "== sysroot libraries"
+          ls "$OKRA_TOOLCHAIN/okra-sysroot/usr/lib" | head -20
+          echo "== gcc target"
+          "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc" -dumpmachine
+          "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc" --version | head -1
 
-      - name: Run the Okra toolchain's own uname
+      - name: Package the toolchain for the next job
         run: |
           set -euo pipefail
-          OkraUname="$OKRA_TOOLCHAIN/usr/bin/uname"
-          test -x "$OkraUname" || { echo "coreutils did not install uname" >&2; exit 1; }
-          Loader="$OKRA_TOOLCHAIN/lib64/ld-linux-x86-64.so.2"
-          [ -f "$Loader" ] || Loader="$(find "$OKRA_TOOLCHAIN" -maxdepth 3 -name 'ld-linux-x86-64.so.2' -type f | head -1)"
-          test -f "$Loader" || { echo "no Okra dynamic loader found" >&2; exit 1; }
-          echo "Okra loader:    $Loader"
-          OkraMachine="$("$Loader" --library-path "$OKRA_TOOLCHAIN/usr/lib:$OKRA_TOOLCHAIN/usr/lib64:$OKRA_TOOLCHAIN/lib64" "$OkraUname" -m)"
-          OkraAll="$("$Loader" --library-path "$OKRA_TOOLCHAIN/usr/lib:$OKRA_TOOLCHAIN/usr/lib64:$OKRA_TOOLCHAIN/lib64" "$OkraUname" -a)"
-          echo "Okra uname -m:  $OkraMachine"
-          echo "Okra uname -a:  $OkraAll"
-          test "$OkraMachine" = "x86_64" || {
-            echo "the Okra toolchain reports $OkraMachine, expected x86_64" >&2
-            exit 1
-          }
-          echo "$OkraMachine" > "$RUNNER_TEMP/okra-toolchain.uname"
-
-      - name: Package the toolchain for reuse
-        run: |
-          set -euo pipefail
-          Archive="$RUNNER_TEMP/okra-toolchain.tar.zst"
+          Archive="$RUNNER_TEMP/okra-cross-toolchain.tar.zst"
           tar --zstd -cf "$Archive" -C "$(dirname "$OKRA_TOOLCHAIN")" "$(basename "$OKRA_TOOLCHAIN")"
-          sha256sum "$Archive" | tee "$RUNNER_TEMP/okra-toolchain.tar.zst.sha256"
+          sha256sum "$Archive" | tee "$RUNNER_TEMP/okra-cross-toolchain.tar.zst.sha256"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: okra-toolchain
+          name: okra-cross-toolchain
           path: |
-            ${{ runner.temp }}/okra-toolchain.tar.zst
-            ${{ runner.temp }}/okra-toolchain.tar.zst.sha256
-            ${{ runner.temp }}/okra-toolchain.uname
+            ${{ runner.temp }}/okra-cross-toolchain.tar.zst
+            ${{ runner.temp }}/okra-cross-toolchain.tar.zst.sha256
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 7
+
+  bootstrap:
+    needs: toolchain
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install host build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential curl ca-certificates tar xz-utils zstd gzip bzip2 \
+            lzip file rsync python3 pkg-config fakeroot wget texinfo bison flex \
+            autoconf automake libtool gettext autopoint meson ninja-build gperf
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: okra-cross-toolchain
+          path: ${{ runner.temp }}/toolchain
+
+      - name: Unpack the cross toolchain
+        run: |
+          set -euo pipefail
+          sudo mkdir -p "$OKRA_TOOLCHAIN"
+          sudo chown "$(id -u):$(id -g)" "$OKRA_TOOLCHAIN"
+          tar --zstd -xf "$RUNNER_TEMP/toolchain/okra-cross-toolchain.tar.zst" -C "$(dirname "$OKRA_TOOLCHAIN")"
+          test -x "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc"
+
+      - name: Fetch the okrapm toolchain sources
+        run: |
+          git clone --depth 1 https://github.com/OkraLinux/okrapm.git okrapm
+          chmod +x okrapm/oaatools/*
+
+      - name: Work out the bootstrap order
+        id: order
+        run: |
+          set -euo pipefail
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import pathlib, re
+
+          Requested = "${{ github.event.inputs.packages }}".split()
+          Recipes = {}
+          for Path in sorted(pathlib.Path("packages").glob("*.conf")):
+              Text = Path.read_text(encoding="utf-8")
+              Match = re.search(r"^Dependencies=\((.*)\)$", Text, re.M)
+              Deps = Match.group(1).split() if Match else []
+              Recipes[Path.stem] = Deps
+
+          # glibc is already installed into the sysroot by the toolchain stage,
+          # so it is not rebuilt here.
+          AlwaysSkip = {"glibc"}
+          Selected = set(Requested) if Requested else set(Recipes) - AlwaysSkip
+          Missing = sorted(Selected - set(Recipes))
+          if Missing:
+              raise SystemExit("unknown packages: " + " ".join(Missing))
+
+          Order = []
+          Visiting = set()
+          Done = set()
+
+          def Visit(Name):
+              if Name in Done or Name not in Selected:
+                  return
+              if Name in Visiting:
+                  raise SystemExit("dependency cycle at " + Name)
+              Visiting.add(Name)
+              for Dep in Recipes.get(Name, []):
+                  Visit(Dep)
+              Visiting.discard(Name)
+              Done.add(Name)
+              Order.append(Name)
+
+          for Name in sorted(Selected):
+              Visit(Name)
+
+          print("names=" + " ".join(Order))
+          print("count=" + str(len(Order)))
+          PY
+          cat "$GITHUB_OUTPUT" | tail -2
+
+      - name: Rebuild every package with the cross toolchain
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/okra-artifacts"
+          export OKRA_OAATOOLS="$PWD/okrapm/oaatools"
+          echo "bootstrapping ${{ steps.order.outputs.count }} packages"
+          for name in ${{ steps.order.outputs.names }}; do
+            echo "== bootstrapping $name"
+            OKRA_PACKAGE_MODE=bootstrap ./scripts/build-package.sh "$name"
+          done
+
+      - name: Verify the bootstrapped packages
+        run: |
+          set -euo pipefail
+          export OKRA_OAATOOLS="$PWD/okrapm/oaatools"
+          Loader="$OKRA_TOOLCHAIN/okra-sysroot/lib64/ld-linux-x86-64.so.2"
+          LibraryPath="$OKRA_TOOLCHAIN/okra-sysroot/usr/lib:$OKRA_TOOLCHAIN/okra-sysroot/lib64:$OKRA_TOOLCHAIN/okra-sysroot/lib"
+          test -f "$Loader" || { echo "no Okra loader" >&2; exit 1; }
+
+          echo "== Okra uname (from the bootstrapped coreutils)"
+          Uname="$OKRA_TOOLCHAIN/okra-sysroot/usr/bin/uname"
+          test -x "$Uname" || { echo "coreutils did not install uname" >&2; exit 1; }
+          OkraMachine="$("$Loader" --library-path "$LibraryPath" "$Uname" -m)"
+          OkraAll="$("$Loader" --library-path "$LibraryPath" "$Uname" -a)"
+          echo "Okra uname -m: $OkraMachine"
+          echo "Okra uname -a: $OkraAll"
+          test "$OkraMachine" = "x86_64"
+
+          echo "== Okra bash"
+          Bash="$OKRA_TOOLCHAIN/okra-sysroot/usr/bin/bash"
+          if [ -x "$Bash" ]; then
+            "$Loader" --library-path "$LibraryPath" "$Bash" -c 'echo "bash $BASH_VERSION on $(uname -m)"'
+          fi
+
+          echo "== Okra make"
+          Make="$OKRA_TOOLCHAIN/okra-sysroot/usr/bin/make"
+          if [ -x "$Make" ]; then
+            "$Loader" --library-path "$LibraryPath" "$Make" --version | head -1
+          fi
+
+          echo "== every bootstrapped archive is x86_64"
+          bad="$(find "$RUNNER_TEMP/okra-artifacts" -name '*.oaa' ! -name '*.x86_64.bootstrapped.oaa' | wc -l)"
+          test "$bad" = "0" || { echo "$bad archives are not x86_64 bootstrapped" >&2; exit 1; }
+          echo "$(find "$RUNNER_TEMP/okra-artifacts" -name '*.oaa' | wc -l) bootstrapped archives"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: okra-bootstrapped-packages
+          path: ${{ runner.temp }}/okra-artifacts/**/*.oaa
+          if-no-files-found: error
+          retention-days: 7
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: okra-bootstrapped-metadata
+          path: |
+            ${{ runner.temp }}/okra-artifacts/**/*.sha256
+            ${{ runner.temp }}/okra-artifacts/**/*.build
+            ${{ runner.temp }}/okra-artifacts/**/*.sources
+          if-no-files-found: error
+          retention-days: 7

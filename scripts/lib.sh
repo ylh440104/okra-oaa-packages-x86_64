@@ -35,7 +35,7 @@ RequireTargetHost() {
 		echo "== target $Target on host $Host"
 		return 0
 	fi
-	if [ "${OKRA_CROSS_COMPILE:-0}" = "1" ]; then
+	if [ "${OKRA_CROSS_COMPILE:-0}" = "1" ] || [ "${OKRA_CROSS_TOOLCHAIN:-0}" = "1" ]; then
 		echo "!! cross compiling $Target on $Host"
 		return 0
 	fi
@@ -43,6 +43,17 @@ RequireTargetHost() {
 	echo "refusing to label $Host binaries as $Target" >&2
 	echo "run on a $Target host, or set OKRA_CROSS_COMPILE=1 with a $Target toolchain" >&2
 	return 1
+}
+
+# OkraBuildTriple() - print the triple of the machine running the build.
+# @None. Used as --build, so autoconf knows which side is native.
+# Return: 0.
+OkraBuildTriple() {
+	case "$(OkraHostArch)" in
+		x86_64)  printf '%s' x86_64-pc-linux-gnu ;;
+		aarch64) printf '%s' aarch64-unknown-linux-gnu ;;
+		*)       printf '%s' "$(OkraHostArch)-unknown-linux-gnu" ;;
+	esac
 }
 
 # OkraHardeningFlags() - print the default CFLAGS used for every package.
@@ -68,13 +79,67 @@ InstallBuildDependencies() {
 	sudo apt-get install -y --no-install-recommends "${ExtraPackages[@]}"
 }
 
+# ApplyCrossToolchainEnvironment() - build with the Okra cross toolchain.
+# @None. Uses OKRA_CROSS_PREFIX, OKRA_SYSROOT and OKRA_TARGET_TRIPLE.
+# Exports the compiler, binutils and flags so a package is linked against the
+# Okra glibc instead of the host one. autoconf derives the host triple from
+# $CC -dumpmachine, so no --host is needed for the usual build systems.
+# Return: 0 when the cross compiler is present, non-zero otherwise.
+ApplyCrossToolchainEnvironment() {
+	local Prefix="${OKRA_CROSS_PREFIX:-${OKRA_TOOLCHAIN:-/opt/okra-toolchain}/cross}"
+	local SysrootPath="${OKRA_SYSROOT:-${OKRA_TOOLCHAIN:-/opt/okra-toolchain}/okra-sysroot}"
+	local Triple="${OKRA_TARGET_TRIPLE:-x86_64-okra-linux-gnu}"
+
+	[ -x "$Prefix/bin/$Triple-gcc" ] || {
+		echo "no cross compiler at $Prefix/bin/$Triple-gcc" >&2
+		return 1
+	}
+	[ -d "$SysrootPath/usr/include" ] || {
+		echo "no sysroot at $SysrootPath" >&2
+		return 1
+	}
+
+	export OKRA_CROSS_PREFIX="$Prefix"
+	export OKRA_SYSROOT="$SysrootPath"
+	export OKRA_TARGET_TRIPLE="$Triple"
+	export CC="$Prefix/bin/$Triple-gcc"
+	export CXX="$Prefix/bin/$Triple-g++"
+	export CPP="$Prefix/bin/$Triple-cpp"
+	export AR="$Prefix/bin/$Triple-ar"
+	export AS="$Prefix/bin/$Triple-as"
+	export LD="$Prefix/bin/$Triple-ld"
+	export NM="$Prefix/bin/$Triple-nm"
+	export RANLIB="$Prefix/bin/$Triple-ranlib"
+	export STRIP="$Prefix/bin/$Triple-strip"
+	export OBJCOPY="$Prefix/bin/$Triple-objcopy"
+	export OBJDUMP="$Prefix/bin/$Triple-objdump"
+	export READELF="$Prefix/bin/$Triple-readelf"
+	export PATH="$Prefix/bin:$PATH"
+
+	# --sysroot is what makes the cross compiler find the Okra headers and
+	# libraries instead of the host ones.
+	local SysrootFlag="--sysroot=$SysrootPath"
+	export CFLAGS="${CFLAGS:-} $SysrootFlag"
+	export CXXFLAGS="${CXXFLAGS:-} $SysrootFlag"
+	export CPPFLAGS="${CPPFLAGS:-} $SysrootFlag"
+	export LDFLAGS="${LDFLAGS:-} $SysrootFlag -Wl,-rpath-link,$SysrootPath/usr/lib"
+	return 0
+}
+
 # ApplyToolchainEnvironment() - put the Okra toolchain ahead of the host one.
 # @None. Uses OKRA_TOOLCHAIN, default /opt/okra-toolchain.
+# When OKRA_CROSS_TOOLCHAIN=1 this delegates to
+# ApplyCrossToolchainEnvironment(), which is the path that actually links
+# against the Okra glibc.
 # Only compile and link search paths are exported. LD_LIBRARY_PATH is
 # deliberately left alone: pointing the host's make, gcc or ld at the freshly
 # built Okra glibc makes them load a foreign libc and die with SIGSEGV.
 # Return: 0. Warns and keeps the host compiler when no toolchain is present.
 ApplyToolchainEnvironment() {
+	if [ "${OKRA_CROSS_TOOLCHAIN:-0}" = "1" ]; then
+		ApplyCrossToolchainEnvironment
+		return $?
+	fi
 	local ToolchainRoot="${OKRA_TOOLCHAIN:-/opt/okra-toolchain}"
 	if [ ! -d "$ToolchainRoot/usr/bin" ]; then
 		echo "!! no toolchain at $ToolchainRoot, using the host compiler" >&2
@@ -106,13 +171,15 @@ OkraRunEnvironment() {
 }
 
 # OkraDynamicLoader() - print the path of the Okra dynamic loader.
-# @None. Uses OKRA_TOOLCHAIN.
-# Return: 0 and the loader path, or 1 when the toolchain has no loader yet.
+# @None. Uses OKRA_SYSROOT when set, otherwise OKRA_TOOLCHAIN.
+# The loader lives in lib64 of the sysroot; the search is limited to two
+# levels so the copy inside the source cache cannot be picked up by mistake.
+# Return: 0 and the loader path, or 1 when there is no loader yet.
 OkraDynamicLoader() {
-	local ToolchainRoot="${OKRA_TOOLCHAIN:-/opt/okra-toolchain}"
+	local Root="${OKRA_SYSROOT:-${OKRA_TOOLCHAIN:-/opt/okra-toolchain}}"
 	local Loader=""
-	if [ -d "$ToolchainRoot" ]; then
-		Loader="$(find "$ToolchainRoot" -maxdepth 3 -name 'ld-linux-x86-64.so.2' -type f 2>/dev/null | head -1 || true)"
+	if [ -d "$Root" ]; then
+		Loader="$(find "$Root" -maxdepth 2 -name 'ld-linux-x86-64.so.2' -type f 2>/dev/null | head -1 || true)"
 	fi
 	[ -n "$Loader" ] || return 1
 	printf '%s' "$Loader"

@@ -23,7 +23,8 @@ This repository rebuilds the same recipe set against the current toolchain:
 | `packages/*.conf` | One recipe per package: `Name`, `Version`, `Url`, `Dependencies`, optional `ConfigureFlags`, `MakeFlags`, `ExtraPackages` and `Build()`. |
 | `scripts/lib.sh` | Shared helpers: architecture detection, host dependency install, toolchain environment. |
 | `scripts/build-package.sh` | Builds one recipe into `<name>-<version>-<release>.<arch>.oaa`. |
-| `scripts/build-toolchain.sh` | Builds okrapm and installs a self-hosting Okra toolchain (glibc, binutils, gcc, make, bash, coreutils). |
+| `scripts/build-toolchain.sh` | Experimental host-native toolchain attempt, kept for reference. |
+| `scripts/build-cross-toolchain.sh` | Builds the self-hosting `x86_64-okra-linux-gnu` cross toolchain. |
 | `out/<name>/` | Committed metadata only: the `.sha256` sidecar and the `.sources` record. |
 | `.github/workflows/build-packages.yml` | CI: one matrix job per recipe, then publish. |
 | `.github/workflows/publish-run.yml` | Manual: publish the artifacts of an existing build run, no rebuild. |
