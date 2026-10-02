@@ -228,6 +228,13 @@ BuildGlibc() {
 	# matches it. CC is pinned so the stage 1 compiler is used even when a
 	# native compiler is also on PATH.
 	#
+	# libc_cv_slibdir=/usr/lib pins the shared library directory. Left to
+	# itself glibc installs the crt objects and libc.so.6 into /usr/lib64 on
+	# x86_64, but gcc's default startfile prefix is /usr/lib, so the stage 2
+	# libgcc link fails with "cannot find crti.o". Forcing /usr/lib is what
+	# the standard cross toolchain recipes do for the same reason. The
+	# dynamic loader still goes to /lib64, which is where the ABI expects it.
+	#
 	# --disable-static-c++-link-check: the stage 1 compiler has no libstdc++,
 	# so any C++ link check fails. glibc's support/Makefile has a C fallback
 	# for exactly this case (LINKS_DSO_PROGRAM = links-dso-program-c, which
@@ -243,7 +250,8 @@ BuildGlibc() {
 		--disable-werror \
 		--without-gd \
 		--disable-nscd \
-		--disable-static-c++-link-check
+		--disable-static-c++-link-check \
+		libc_cv_slibdir=/usr/lib
 	# CXX= on the make command line overrides the Makefile assignment, so
 	# support/ builds its helper with the C fallback instead of linking
 	# -lstdc++ and -lgcc_s, neither of which exists until stage 2 installs
