@@ -227,6 +227,11 @@ BuildGlibc() {
 	# glibc wants a host triple, not a target triple, and the compiler that
 	# matches it. CC is pinned so the stage 1 compiler is used even when a
 	# native compiler is also on PATH.
+	#
+	# --disable-static-c++-link-check: the stage 1 compiler has no libstdc++,
+	# so any C++ link check fails. glibc's support/Makefile has a C fallback
+	# for exactly this case (LINKS_DSO_PROGRAM = links-dso-program-c, which
+	# only needs -lgcc), and it is selected when CXX is empty.
 	CC="$CrossPrefix/bin/$TargetTriple-gcc" \
 	"$Directory/source/configure" \
 		--build="$(OkraBuildTriple)" \
@@ -237,8 +242,13 @@ BuildGlibc() {
 		--enable-kernel=5.10 \
 		--disable-werror \
 		--without-gd \
-		--disable-nscd
-	make -j"$Jobs"
+		--disable-nscd \
+		--disable-static-c++-link-check
+	# CXX= on the make command line overrides the Makefile assignment, so
+	# support/ builds its helper with the C fallback instead of linking
+	# -lstdc++ and -lgcc_s, neither of which exists until stage 2 installs
+	# them. Nothing else in glibc needs a C++ compiler at build time.
+	make -j"$Jobs" CXX=
 	make install install_root="$Sysroot"
 	[ -f "$Sysroot/usr/lib/libc.so.6" ] || { echo "glibc was not installed into the sysroot" >&2; return 1; }
 	[ -f "$Sysroot/lib64/ld-linux-x86-64.so.2" ] || { echo "the Okra dynamic loader is missing" >&2; return 1; }
