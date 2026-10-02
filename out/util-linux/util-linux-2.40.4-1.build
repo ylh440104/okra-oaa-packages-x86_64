@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.edge.kernel.org/pub/linux/utils/util-linux/v2.40/util-linux-2.40.4.tar.xz
 source_sha256: 5c1daf733b04e9859afdc3bd87cc481180ee0f88b5c0946b16fdec931975fb79
 artifact: util-linux-2.40.4-1.x86_64.oaa
-artifact_sha256: 897748ea038deca449e965700d25e6e6ac8d4cea7f9d6e29745f8225543eddd8
+artifact_sha256: cadf3e63fc20be04b78c64446ac8c9016586140ef28c6f6aae0c2771788a4aed

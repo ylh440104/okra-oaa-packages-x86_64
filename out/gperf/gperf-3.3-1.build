@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/gperf/gperf-3.3.tar.gz
 source_sha256: fd87e0aba7e43ae054837afd6cd4db03a3f2693deb3619085e6ed9d8d9604ad8
 artifact: gperf-3.3-1.x86_64.oaa
-artifact_sha256: 1ca838d2c7632e10f5d56515550e360dd04b426e5c6ffaec67e8bec9a8daeda9
+artifact_sha256: 08bfd5d51be321e6b2e0c1f81230bb7c564bd33f9dd744f64c8bdacc99a472ad

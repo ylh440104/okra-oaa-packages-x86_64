@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/libexpat/libexpat/releases/download/R_2_6_4/expat-2.6.4.tar.bz2
 source_sha256: 8dc480b796163d4436e6f1352e71800a774f73dbae213f1860b60607d2a83ada
 artifact: expat-2.6.4-1.x86_64.oaa
-artifact_sha256: d3907844dd8f9d266a1cf9bb84457db201251c91e8f4b1aebda5f4d3d2b2a5e2
+artifact_sha256: 855deb2337c4ba76da1ef72e0e34d7e01a7f8542018f0b203963f5d03f34e907

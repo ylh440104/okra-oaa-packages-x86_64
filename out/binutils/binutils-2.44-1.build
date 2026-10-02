@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/binutils/binutils-2.44.tar.xz
 source_sha256: ce2017e059d63e67ddb9240e9d4ec49c2893605035cd60e92ad53177f4377237
 artifact: binutils-2.44-1.x86_64.oaa
-artifact_sha256: 9cf727a5bc008416553541d1f948460ee045e328aeab8b27522f86e9a7062302
+artifact_sha256: f7e2da5294f892b3e44ad34c59c91228343795c011f6207b7da2644181461a63

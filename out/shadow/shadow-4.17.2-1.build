@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/shadow-maint/shadow/releases/download/4.17.2/shadow-4.17.2.tar.xz
 source_sha256: a21cf0d34bffc4314cede01cff258689174fab30ca494ae8f45784d3d56c9849
 artifact: shadow-4.17.2-1.x86_64.oaa
-artifact_sha256: f36f4e03b4877c0ee04a98a0f0a805a64a48eaf5df1ed50e1acfe69b8a43363a
+artifact_sha256: c38b77636c03c1666371228e283cbfb141f8fee8d9f0305293192c89456ab02d

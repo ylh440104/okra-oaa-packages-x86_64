@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://gitlab.com/procps-ng/procps/-/archive/v4.0.5/procps-v4.0.5.tar.gz
 source_sha256: 2c6d7ed9f2acde1d4dd4602c6172fe56eff86953fe8639bd633dbd22cc18f5db
 artifact: procps-4.0.5-1.x86_64.oaa
-artifact_sha256: 3dab037c98fa0d297a29292c7529af7ed8b5e3f47417da3ee2595cf8d9ece1d8
+artifact_sha256: 87481536407f6d927706afe966993a2ef7b8744805402c7f670024c25bc88c62
