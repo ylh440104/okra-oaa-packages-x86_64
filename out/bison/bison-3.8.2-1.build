@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/bison/bison-3.8.2.tar.xz
 source_sha256: 9bba0214ccf7f1079c5d59210045227bcf619519840ebfa80cd3849cff5a5bf2
 artifact: bison-3.8.2-1.x86_64.oaa
-artifact_sha256: cae263e782b69960859ae011beef1b617fb0b0f0ba3fe69b6a4799f29b8e2a3e
+artifact_sha256: c9632f159dd00067ad600787ec50a2815731d5524b5ffc5f99bed81ec6137d30

@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/libtasn1/libtasn1-4.20.0.tar.gz
 source_sha256: 92e0e3bd4c02d4aeee76036b2ddd83f0c732ba4cda5cb71d583272b23587a76c
 artifact: libtasn1-4.20.0-1.x86_64.oaa
-artifact_sha256: 6f10408076fbfb22428f2440055cf330fd142154e22196aadbd08465f67f1d99
+artifact_sha256: 1c37c1e641264af4b43f4242562528874cbfd5b6bd52454b80cbfc5fcbc94b48

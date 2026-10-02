@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/coreutils/coreutils-9.6.tar.xz
 source_sha256: 7a0124327b398fd9eb1a6abde583389821422c744ffa10734b24f557610d3283
 artifact: coreutils-9.6-1.x86_64.oaa
-artifact_sha256: 2219c96aa5e23a4d30f745ec04398f972786f81d9016fef742e3d953b4639885
+artifact_sha256: 27ea21a879f216a7fd17665e0ad34c7819796c3ef1b96d560760e54179edd8ef

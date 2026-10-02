@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/gzip/gzip-1.13.tar.xz
 source_sha256: 7454eb6935db17c6655576c2e1b0fabefd38b4d0936e0f87f48cd062ce91a057
 artifact: gzip-1.13-1.x86_64.oaa
-artifact_sha256: 86b2186c02db849ed7d3e1c421df8993b81a711e7150a15a22964ab3eb64e14b
+artifact_sha256: 43f1313354cb4a4bf218acfec16d3fcd5ac76f362ffff838fab30f8304019f6a

@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/mpc/mpc-1.3.1.tar.gz
 source_sha256: ab642492f5cf882b74aa0cb730cd410a81edcdbec895183ce930e706c1c759b8
 artifact: mpc-1.3.1-1.x86_64.oaa
-artifact_sha256: 7d6238d870e6487bfd99fb69c55913ee63f2178c42fa31bf73d713cbffa996c5
+artifact_sha256: 57986b44a5775c0f1107759a3daef122acaa38a27294f0d27a1e63ec499d5339

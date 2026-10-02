@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.44/pcre2-10.44.tar.gz
 source_sha256: 86b9cb0aa3bcb7994faa88018292bc704cdbb708e785f7c74352ff6ea7d3175b
 artifact: pcre2-10.44-1.x86_64.oaa
-artifact_sha256: 80e4fe1071296077453faa96a45dd17732f79fb7d866acb72c16e0fff3b74fff
+artifact_sha256: c5a6e8ddd7a06f93a877f2eb76ae9c42d982ba830b530cbf15d7f9a59d94187d

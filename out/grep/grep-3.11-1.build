@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/grep/grep-3.11.tar.xz
 source_sha256: 1db2aedde89d0dea42b16d9528f894c8d15dae4e190b59aecc78f5a951276eab
 artifact: grep-3.11-1.x86_64.oaa
-artifact_sha256: ac1a6c8175fdabaf1124f763bd4285809387f389e11526b160de9e0e308e9c8e
+artifact_sha256: be5e00b3f6f7dd8335c44c41c9979c73890f954c042d3f5fb57dcf100fc9c784

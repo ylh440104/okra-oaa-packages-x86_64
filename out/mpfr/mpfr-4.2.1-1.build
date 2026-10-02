@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/mpfr/mpfr-4.2.1.tar.xz
 source_sha256: 277807353a6726978996945af13e52829e3abd7a9a5b7fb2793894e18f1fcbb2
 artifact: mpfr-4.2.1-1.x86_64.oaa
-artifact_sha256: ec2cb117c41098c31ba2931d8da95b799c81da5007b1b35f6d9053a49e18e6b3
+artifact_sha256: 8ae8871bc58de6f34f48bde73ba3d1cf40d94cdcf1713e2c72d50ac4bde89835
