@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/wget/wget-1.25.0.tar.gz
 source_sha256: 766e48423e79359ea31e41db9e5c289675947a7fcf2efdcedb726ac9d0da3784
 artifact: wget-1.25.0-1.x86_64.oaa
-artifact_sha256: 78fd018b3a8298cac5405015fcd253ea399f2b0b2596b0b20552e3fc2d7a2a05
+artifact_sha256: 16bf35f683453ba992dad77e10d3baeb147cf3c9d0d22cd37090f443bdb4c27e

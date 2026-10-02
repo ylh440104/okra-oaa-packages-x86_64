@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://curl.se/download/curl-8.12.1.tar.xz
 source_sha256: 0341f1ed97a26c811abaebd37d62b833956792b7607ea3f15d001613c76de202
 artifact: curl-8.12.1-1.x86_64.oaa
-artifact_sha256: c04e22f42120c74d6c56c33b9b3a0c02ad8f51fd152984ac8363f0bc7b859766
+artifact_sha256: bc069cda67117c455b3ee861dbce9231e4602e376e6f271de81f6388bfa5a4e4

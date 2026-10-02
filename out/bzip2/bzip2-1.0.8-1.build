@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
 source_sha256: ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269
 artifact: bzip2-1.0.8-1.x86_64.oaa
-artifact_sha256: afbf63bf2ff5526ff2a817ba98a27b9c77b7a2511c9f012643c34d1d396f41aa
+artifact_sha256: 2c9c06622d2663f61a53992ee4a5b56b48196d3237d198e29393ab17ab7ac513

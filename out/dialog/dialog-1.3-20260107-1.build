@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://invisible-mirror.net/archives/dialog/dialog-1.3-20260107.tgz
 source_sha256: 78b3dd18d95e50f0be8f9b9c1e7cffe28c9bf1cdf20d5b3ef17279c4da35c5b5
 artifact: dialog-1.3-20260107-1.x86_64.oaa
-artifact_sha256: fbec560983b714a05b067fc136348a4683647b79cad9ae423e673a6c361d45d9
+artifact_sha256: 14154899841b0e54ceb454f94033e6691e85c9fbf41b0818182303d208279d04

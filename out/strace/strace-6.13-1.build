@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/strace/strace/releases/download/v6.13/strace-6.13.tar.xz
 source_sha256: e209daf0ee038ca5adcc4c277e9273b4d51f46a2ff86da575d36742ac3508a17
 artifact: strace-6.13-1.x86_64.oaa
-artifact_sha256: b955c2f3fcf952a6534c273070d0c41252797ade7ccfb96f13a0e4b1a3e990c7
+artifact_sha256: e1d7a637bb88e207b5b92baad37e21634824cc1a64f6c0b5818c655894cf37e1

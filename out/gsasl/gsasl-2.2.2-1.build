@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/gsasl/gsasl-2.2.2.tar.gz
 source_sha256: 41e8e442648eccaf6459d9ad93d4b18530b96c8eaf50e3f342532ef275eff3ba
 artifact: gsasl-2.2.2-1.x86_64.oaa
-artifact_sha256: 716447412027c8201dc591a72002720ce342661dd7b8d20d6b1b0b4ce75a9abe
+artifact_sha256: 3f946be407d0ba11f8d41a74f8bd5f021a81ed1fe1dacf69d6c2328c72c1d211
