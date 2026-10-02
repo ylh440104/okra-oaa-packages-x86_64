@@ -251,7 +251,8 @@ BuildGlibc() {
 		--without-gd \
 		--disable-nscd \
 		--disable-static-c++-link-check \
-		libc_cv_slibdir=/usr/lib
+		libc_cv_slibdir=/usr/lib \
+		libc_cv_rtlddir=/lib64
 	# CXX= on the make command line overrides the Makefile assignment, so
 	# support/ builds its helper with the C fallback instead of linking
 	# -lstdc++ and -lgcc_s, neither of which exists until stage 2 installs
@@ -261,15 +262,24 @@ BuildGlibc() {
 	# C++ branch, tries to rebuild links-dso-program, and fails on a target
 	# that only the C++ configuration defines.
 	make install install_root="$Sysroot" CXX=
-	# glibc installs into ${prefix}/lib64 on x86_64, not ${prefix}/lib, so the
-	# check looks for libc.so.6 anywhere in the sysroot rather than assuming
-	# a directory. OkraSysrootLibraryPath() finds the same directories later.
+	# glibc installs libc.so.6 into ${libc_cv_slibdir}, which is pinned to
+	# /usr/lib above, and the dynamic loader into ${libc_cv_rtlddir}, which is
+	# pinned to /lib64 because OAABI 1 fixes the interpreter at
+	# /lib64/ld-linux-x86-64.so.2. Both are looked up rather than assumed.
+	local LoaderPath
+	LoaderPath="$(find "$Sysroot" -name 'ld-linux-x86-64.so.2' -type f -print -quit)"
+	[ -n "$LoaderPath" ] || { echo "the Okra dynamic loader is missing" >&2; return 1; }
+	[ "$LoaderPath" = "$Sysroot/lib64/ld-linux-x86-64.so.2" ] || {
+		echo "the dynamic loader landed at $LoaderPath, expected $Sysroot/lib64/ld-linux-x86-64.so.2" >&2
+		echo "OAABI 1 fixes the interpreter path, so this must not move" >&2
+		return 1
+	}
 	[ -n "$(find "$Sysroot" -name 'libc.so.6' -type f -print -quit)" ] || {
 		echo "glibc was not installed into the sysroot" >&2
 		return 1
 	}
-	[ -f "$Sysroot/lib64/ld-linux-x86-64.so.2" ] || { echo "the Okra dynamic loader is missing" >&2; return 1; }
-	echo "== glibc installed: $(find "$Sysroot" -name 'libc.so.6' -type f -print -quit)"
+	echo "== glibc installed: libc.so.6 at $(find "$Sysroot" -name 'libc.so.6' -type f -print -quit)"
+	echo "== Okra dynamic loader: $LoaderPath"
 }
 
 # BuildGccStage2() - build the full cross compiler.
@@ -341,6 +351,16 @@ VerifyToolchain() {
 	"$Cxx" -o "$Scratch/HelloCxx" "$Scratch/HelloCxx.cpp"
 
 	VerifyElfArchitecture "$Scratch" "$TargetArch"
+
+	# OAABI 1 fixes the interpreter path, so prove the toolchain emits it.
+	# The string lives in the PT_INTERP segment, which is enough to catch a
+	# sysroot whose loader drifted.
+	if ! grep -aq '/lib64/ld-linux-x86-64.so.2' "$Scratch/HelloC"; then
+		echo "the C hello world does not request /lib64/ld-linux-x86-64.so.2" >&2
+		echo "OAABI 1 fixes the interpreter path" >&2
+		return 1
+	fi
+	echo "== interpreter is /lib64/ld-linux-x86-64.so.2"
 
 	Output="$("$Loader" --library-path "$(OkraLibraryPath)" "$Scratch/HelloC")"
 	[ "$Output" = "ok" ] || { echo "the C hello world printed '$Output', expected 'ok'" >&2; return 1; }
