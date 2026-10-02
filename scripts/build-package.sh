@@ -103,11 +103,16 @@ if [ "${OKRA_PACKAGE_MODE:-package}" = "bootstrap" ]; then
 	# well as packaged. The .bootstrapped suffix keeps it distinct from the
 	# host-built archive of the same name.
 	#
-	# These have to be set before the build runs: ApplyToolchainEnvironment
-	# reads OKRA_CROSS_TOOLCHAIN to decide whether to use the cross compiler,
-	# and the build itself is what needs the cross environment.
+	# OKRA_CROSS_TOOLCHAIN must be set before ApplyToolchainEnvironment runs,
+	# because that function reads it to decide whether to use the cross
+	# compiler. ApplyCrossToolchainEnvironment then sets CC/CXX/binutils and
+	# --sysroot for the build itself.
 	export OKRA_CROSS_TOOLCHAIN=1
 	export OKRA_ARTIFACT_SUFFIX="${OKRA_ARTIFACT_SUFFIX:-.bootstrapped}"
+	ApplyCrossToolchainEnvironment || {
+		echo "bootstrap mode needs a cross toolchain; run build-cross-toolchain.sh first" >&2
+		exit 1
+	}
 fi
 
 echo "== assembling package"
