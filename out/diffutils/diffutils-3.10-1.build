@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/diffutils/diffutils-3.10.tar.xz
 source_sha256: 90e5e93cc724e4ebe12ede80df1634063c7a855692685919bfe60b556c9bd09e
 artifact: diffutils-3.10-1.x86_64.oaa
-artifact_sha256: 0cc97465118c2ef422a17197f0645816788b7df393c10c7dd30a7a39444659f3
+artifact_sha256: 98eb9f580e8036da3a8b5b967350bb3128626826921fd5dac0dd7557a15602e1

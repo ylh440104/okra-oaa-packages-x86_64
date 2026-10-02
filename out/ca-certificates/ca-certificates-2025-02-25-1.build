@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://curl.se/ca/cacert-2025-02-25.pem
 source_sha256: 50a6277ec69113f00c5fd45f09e8b97a4b3e32daa35d3a95ab30137a55386cef
 artifact: ca-certificates-2025-02-25-1.x86_64.oaa
-artifact_sha256: 575149259e9fec5b92774e17783e5ec27a55e96f3097ddb5d629b3baf5e77a93
+artifact_sha256: 7336b07b1a2f3dda6825ce9681f8dffcaad06a5f9491e72e4b2a7d34aaa6f871

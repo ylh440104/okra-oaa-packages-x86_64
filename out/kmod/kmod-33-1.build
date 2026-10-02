@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.edge.kernel.org/pub/linux/utils/kernel/kmod/kmod-33.tar.xz
 source_sha256: dc768b3155172091f56dc69430b5481f2d76ecd9ccb54ead8c2540dbcf5ea9bc
 artifact: kmod-33-1.x86_64.oaa
-artifact_sha256: e7474cb5bd2999422f52028ac13f1a953dab9670437f1f6d7300cea6981b62aa
+artifact_sha256: 5a27dba22944ff66f0c896a2e1c98e3671cdfed17b767df6e49513a7bcb70ffd

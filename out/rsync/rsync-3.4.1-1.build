@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://download.samba.org/pub/rsync/src/rsync-3.4.1.tar.gz
 source_sha256: 2924bcb3a1ed8b551fc101f740b9f0fe0a202b115027647cf69850d65fd88c52
 artifact: rsync-3.4.1-1.x86_64.oaa
-artifact_sha256: 887325dd1de16b47c56b16e196da64780fe89d18a7ac41c29f72b2c2813c378c
+artifact_sha256: 9f4a7d5027e08cec509dbdf6031efdbb7b44143dffe9aadd512476e6f301a194

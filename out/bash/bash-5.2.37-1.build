@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/bash/bash-5.2.37.tar.gz
 source_sha256: 9599b22ecd1d5787ad7d3b7bf0c59f312b3396d1e281175dd1f8a4014da621ff
 artifact: bash-5.2.37-1.x86_64.oaa
-artifact_sha256: cb9a875ea5667385c94f850a4459f9c604f8a974537da78ddb426db21d4126ab
+artifact_sha256: ea7601a3b1f1c974f25467d7417d0024c9793f3c1107044fcd38d90409c513bd
