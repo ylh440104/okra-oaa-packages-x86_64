@@ -145,6 +145,13 @@ jobs:
           "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc" -dumpmachine
           "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc" --version | head -1
 
+      - name: Save the cross toolchain to cache
+        if: steps.cache-toolchain.outputs.cache-hit != 'true' && steps.download-artifact.outputs.artifact-restored != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.OKRA_TOOLCHAIN }}
+          key: ${{ steps.key.outputs.key }}
+
   bootstrap:
     needs: toolchain
     runs-on: ubuntu-24.04
