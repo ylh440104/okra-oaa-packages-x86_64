@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://sqlite.org/2024/sqlite-autoconf-3470000.tar.gz
 source_sha256: 83eb21a6f6a649f506df8bd3aab85a08f7556ceed5dbd8dea743ea003fc3a957
 artifact: sqlite-3.47.0-1.x86_64.oaa
-artifact_sha256: 8fc5b68f227afbe753680dd6f49934400db877198cb04314ab135fe53fdf36fe
+artifact_sha256: defca9302b8d04602b62d5341c2173d65f48ca0ce4c1cf44ad4cb3d8b2f6cb60

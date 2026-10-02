@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/automake/automake-1.17.tar.xz
 source_sha256: 8920c1fc411e13b90bf704ef9db6f29d540e76d232cb3b2c9f4dc4cc599bd990
 artifact: automake-1.17-1.x86_64.oaa
-artifact_sha256: b31e089214eb38ef21d0752b066708c00da5817ab43d00e6fb2c403a2f6f5d8c
+artifact_sha256: 985726107d8feb18f69612d266cddb418915e64ac02f3b84008f8a3b12c7ea63

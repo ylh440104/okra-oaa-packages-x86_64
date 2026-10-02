@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/make/make-4.4.1.tar.gz
 source_sha256: dd16fb1d67bfab79a72f5e8390735c49e3e8e70b4945a15ab1f81ddb78658fb3
 artifact: make-4.4.1-1.x86_64.oaa
-artifact_sha256: 4f6c2a87d2a9cfa4dfeabe319df7614915791c2176c4ddd2a777b0392c11feb4
+artifact_sha256: c554aa22f57193e65d4a96e3314b53befadcc5e48592f4c49c8b621309d56248

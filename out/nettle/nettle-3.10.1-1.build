@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/nettle/nettle-3.10.1.tar.gz
 source_sha256: b0fcdd7fc0cdea6e80dcf1dd85ba794af0d5b4a57e26397eee3bc193272d9132
 artifact: nettle-3.10.1-1.x86_64.oaa
-artifact_sha256: cde3726603590eaab9b2410c798847d18795fd57547e7faf6ca87eaf4dd06878
+artifact_sha256: b66e5920e9ace34b07f156fb5aae903006f8f667f0681ea12c87773006e66cfe
