@@ -129,6 +129,23 @@ BuildKernelHeaders() {
 	[ -d "$Sysroot/usr/include/linux" ] || { echo "kernel headers were not installed" >&2; return 1; }
 }
 
+# PrepareGccPrerequisites() - fetch the GMP, MPFR and MPC sources GCC needs.
+# @SourceDirectory: an extracted gcc source tree.
+# GCC's configure refuses to run without them, and building them from the
+# bundled copies keeps the toolchain independent of whatever the host happens
+# to have installed. contrib/download_prerequisites unpacks them in place.
+# Return: 0.
+PrepareGccPrerequisites() {
+	local SourceDirectory="$1"
+	if [ -f "$SourceDirectory/gmp/configure" ] && [ -f "$SourceDirectory/mpfr/configure" ]; then
+		return 0
+	fi
+	echo "== fetching gcc prerequisites (gmp, mpfr, mpc)" >&2
+	( cd "$SourceDirectory" && ./contrib/download_prerequisites ) >&2
+	[ -f "$SourceDirectory/gmp/configure" ] || { echo "gmp sources are missing" >&2; return 1; }
+	[ -f "$SourceDirectory/mpfr/configure" ] || { echo "mpfr sources are missing" >&2; return 1; }
+}
+
 # BuildBinutils() - build the cross binutils.
 # @None. Uses the binutils recipe version.
 # Return: 0.
@@ -166,6 +183,7 @@ BuildGccStage1() {
 	Archive="$(FetchSource "$(RecipeUrl gcc)")"
 	Directory="$BuildRoot/gcc-stage1"
 	ExtractSource "$Archive" "$Directory/source"
+	PrepareGccPrerequisites "$Directory/source"
 	mkdir -p "$Directory/build"
 	cd "$Directory/build"
 	ConfigureCross "$Directory/source/configure" \
@@ -236,9 +254,17 @@ BuildGccStage2() {
 	echo "== stage 5: gcc $Version stage 2 (C and C++ against the Okra glibc)"
 	Archive="$(FetchSource "$(RecipeUrl gcc)")"
 	Directory="$BuildRoot/gcc-stage2"
-	ExtractSource "$Archive" "$Directory/source"
-	mkdir -p "$Directory/build"
-	cd "$Directory/build"
+	# Reuse the source tree that stage 1 already prepared, so the GMP, MPFR
+	# and MPC tarballs are not downloaded a second time.
+	if [ -f "$BuildRoot/gcc-stage1/source/configure" ]; then
+		Directory="$BuildRoot/gcc-stage1"
+	fi
+	if [ ! -f "$Directory/source/configure" ]; then
+		ExtractSource "$Archive" "$Directory/source"
+	fi
+	PrepareGccPrerequisites "$Directory/source"
+	mkdir -p "$Directory/build2"
+	cd "$Directory/build2"
 	ConfigureCross "$Directory/source/configure" \
 		--enable-languages=c,c++ \
 		--enable-shared \
