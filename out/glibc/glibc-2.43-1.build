@@ -1,0 +1,11 @@
+package: app.glibc
+version: 2.43
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/glibc/glibc-2.43.tar.xz
+source_sha256: d9c86c6b5dbddb43a3e08270c5844fc5177d19442cf5b8df4be7c07cd5fa3831
+artifact: glibc-2.43-1.x86_64.oaa
+artifact_sha256: c81d6346306c79e58cdb05aa52992b6699cb14423e1c61f2532783bbcb2bac01

@@ -1,0 +1,11 @@
+package: GNU.patch
+version: 2.7.6
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/patch/patch-2.7.6.tar.xz
+source_sha256: ac610bda97abe0d9f6b7c963255a11dcb196c25e337c61f94e4778d632f1d8fd
+artifact: patch-2.7.6-1.x86_64.oaa
+artifact_sha256: f731dab2a69dc39aef38a4e97f4573cb4cc4695b28977c78348ce1c95e2da20a

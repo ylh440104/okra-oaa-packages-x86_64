@@ -1,0 +1,11 @@
+package: GNU.mpfr
+version: 4.2.1
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/mpfr/mpfr-4.2.1.tar.xz
+source_sha256: 277807353a6726978996945af13e52829e3abd7a9a5b7fb2793894e18f1fcbb2
+artifact: mpfr-4.2.1-1.x86_64.oaa
+artifact_sha256: 90dbe6f89b31ea3765493ba12f58ca1245943f641f0bccc08fd571c1d6749692

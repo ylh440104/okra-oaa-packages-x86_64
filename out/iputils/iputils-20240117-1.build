@@ -1,0 +1,11 @@
+package: app.iputils
+version: 20240117
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://github.com/iputils/iputils/releases/download/20240117/iputils-20240117.tar.xz
+source_sha256: 2c3f1f4d6f2481dec05b441de9c81d4059bdb202d4d0e98404f62ee1502bf1dc
+artifact: iputils-20240117-1.x86_64.oaa
+artifact_sha256: 4cfafc06065d7c04182d3fc8bc161cf5f941edf3b22277137d23aad673bc0bac

@@ -1,0 +1,11 @@
+package: app.iproute2
+version: 6.12.0
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.edge.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.12.0.tar.xz
+source_sha256: bbd141ef7b5d0127cc2152843ba61f274dc32814fa3e0f13e7d07a080bef53d9
+artifact: iproute2-6.12.0-1.x86_64.oaa
+artifact_sha256: b8692d0516e420635c7a1832b4ca45d52b8d5911ae398e4c82adcbd5283de738

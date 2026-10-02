@@ -1,0 +1,11 @@
+package: app.systemd
+version: 262
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://github.com/systemd/systemd/archive/refs/tags/v262.tar.gz
+source_sha256: 6aa77506c0644aa67f940a48e3d3a7368601f787e4f249139516d353f107bcab
+artifact: systemd-262-1.x86_64.oaa
+artifact_sha256: f6d7ef1b52044aa7c1dbd4170077e7456bddd85b6976b30a06a84958204f87ec

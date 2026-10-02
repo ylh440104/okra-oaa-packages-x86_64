@@ -1,0 +1,11 @@
+package: GNU.automake
+version: 1.17
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/automake/automake-1.17.tar.xz
+source_sha256: 8920c1fc411e13b90bf704ef9db6f29d540e76d232cb3b2c9f4dc4cc599bd990
+artifact: automake-1.17-1.x86_64.oaa
+artifact_sha256: 557f2322224c14f8d4afa8ab42bd4e0cb31f9f84fa6d4c7c767d7ada9626be68

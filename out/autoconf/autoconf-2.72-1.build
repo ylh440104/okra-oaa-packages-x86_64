@@ -1,0 +1,11 @@
+package: GNU.autoconf
+version: 2.72
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/autoconf/autoconf-2.72.tar.xz
+source_sha256: ba885c1319578d6c94d46e9b0dceb4014caafe2490e437a0dbca3f270a223f5a
+artifact: autoconf-2.72-1.x86_64.oaa
+artifact_sha256: ebff3d60f0e0799f606ed46a577d5b9a0bacb7c26f50abb7e3ccd4f4ddbc607b

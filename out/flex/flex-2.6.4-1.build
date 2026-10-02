@@ -1,0 +1,11 @@
+package: app.flex
+version: 2.6.4
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://github.com/westes/flex/releases/download/v2.6.4/flex-2.6.4.tar.gz
+source_sha256: e87aae032bf07c26f85ac0ed3250998c37621d95f8bd748b31f15b33c45ee995
+artifact: flex-2.6.4-1.x86_64.oaa
+artifact_sha256: 95842cf14aceacb9921f38179f6f07467f32cd5857fdf96ea898d1886650d57f

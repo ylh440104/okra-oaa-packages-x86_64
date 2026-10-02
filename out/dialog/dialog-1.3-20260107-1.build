@@ -1,0 +1,11 @@
+package: app.dialog
+version: 1.3-20260107
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://invisible-mirror.net/archives/dialog/dialog-1.3-20260107.tgz
+source_sha256: 78b3dd18d95e50f0be8f9b9c1e7cffe28c9bf1cdf20d5b3ef17279c4da35c5b5
+artifact: dialog-1.3-20260107-1.x86_64.oaa
+artifact_sha256: c4f159e2e6e0b04b248187db61b95c0b52e80e24a96afea567c851058a51c795

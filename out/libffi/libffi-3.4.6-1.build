@@ -1,0 +1,11 @@
+package: app.libffi
+version: 3.4.6
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://github.com/libffi/libffi/releases/download/v3.4.6/libffi-3.4.6.tar.gz
+source_sha256: b0dea9df23c863a7a50e825440f3ebffabd65df1497108e5d437747843895a4e
+artifact: libffi-3.4.6-1.x86_64.oaa
+artifact_sha256: b11651b1054b5259effbaf0163ba5aeb03bac30f067288705ba6af27c2cc5433

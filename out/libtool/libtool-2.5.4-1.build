@@ -1,0 +1,11 @@
+package: GNU.libtool
+version: 2.5.4
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/libtool/libtool-2.5.4.tar.xz
+source_sha256: f81f5860666b0bc7d84baddefa60d1cb9fa6fceb2398cc3baca6afaa60266675
+artifact: libtool-2.5.4-1.x86_64.oaa
+artifact_sha256: e6601326fe3342e91f5ca32e9f5ec3a888b7842163cfc1fd8ecccc67c139eee7

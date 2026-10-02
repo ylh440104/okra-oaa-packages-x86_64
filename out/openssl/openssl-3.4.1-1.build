@@ -1,0 +1,11 @@
+package: app.openssl
+version: 3.4.1
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz
+source_sha256: 002a2d6b30b58bf4bea46c43bdd96365aaf8daa6c428782aa4feee06da197df3
+artifact: openssl-3.4.1-1.x86_64.oaa
+artifact_sha256: 79c07fee21c1afa3159b34fe1954cc5c6ee21e704ef672995de94eeee6ccb882

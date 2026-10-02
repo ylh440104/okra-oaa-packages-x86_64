@@ -1,0 +1,11 @@
+package: app.libtasn1
+version: 4.20.0
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/libtasn1/libtasn1-4.20.0.tar.gz
+source_sha256: 92e0e3bd4c02d4aeee76036b2ddd83f0c732ba4cda5cb71d583272b23587a76c
+artifact: libtasn1-4.20.0-1.x86_64.oaa
+artifact_sha256: 8dade69c7185e65064fb983a5c305d9be743812339dc744f4c531bcc6a9e2812

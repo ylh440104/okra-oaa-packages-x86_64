@@ -1,0 +1,11 @@
+package: GNU.gdbm
+version: 1.24
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/gdbm/gdbm-1.24.tar.gz
+source_sha256: 695e9827fdf763513f133910bc7e6cfdb9187943a4fec943e57449723d2b8dbf
+artifact: gdbm-1.24-1.x86_64.oaa
+artifact_sha256: 0a588347455e9c17605fffb5c3cc04e07740ff422a2b0b9cdce55dbadee92959

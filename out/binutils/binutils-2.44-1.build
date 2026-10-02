@@ -1,0 +1,11 @@
+package: GNU.binutils
+version: 2.44
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/binutils/binutils-2.44.tar.xz
+source_sha256: ce2017e059d63e67ddb9240e9d4ec49c2893605035cd60e92ad53177f4377237
+artifact: binutils-2.44-1.x86_64.oaa
+artifact_sha256: 2375c9aab6a8898b10e91a911d9964b492bb6d712d3603cfef0ffe8504195939

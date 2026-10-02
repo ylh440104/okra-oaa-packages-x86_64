@@ -1,0 +1,11 @@
+package: GNU.readline
+version: 8.2
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/readline/readline-8.2.tar.gz
+source_sha256: 3feb7171f16a84ee82ca18a36d7b9be109a52c04f492a053331d7d1095007c35
+artifact: readline-8.2-1.x86_64.oaa
+artifact_sha256: bbdf9d5125e57a7b2559632a7ac7544a213f9a633f542442d49690222f36f6af

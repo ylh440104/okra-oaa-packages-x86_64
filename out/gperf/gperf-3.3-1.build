@@ -1,0 +1,11 @@
+package: GNU.gperf
+version: 3.3
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/gperf/gperf-3.3.tar.gz
+source_sha256: fd87e0aba7e43ae054837afd6cd4db03a3f2693deb3619085e6ed9d8d9604ad8
+artifact: gperf-3.3-1.x86_64.oaa
+artifact_sha256: 75d1220cafd2c8e817aea52a75af057cdb278c381cdc9034b6ea933fcfbf0d30

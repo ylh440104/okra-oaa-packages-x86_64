@@ -1,0 +1,11 @@
+package: app.libcap
+version: 2.73
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-2.73.tar.xz
+source_sha256: 6405f6089cf4cdd8c271540cd990654d78dd0b1989b2d9bda20f933a75a795a5
+artifact: libcap-2.73-1.x86_64.oaa
+artifact_sha256: d4f25dcdb67a0dd8c9b88c061deb27a076044c503180a49ddd25f73315e225a5

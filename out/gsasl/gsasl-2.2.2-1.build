@@ -1,0 +1,11 @@
+package: app.gsasl
+version: 2.2.2
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/gsasl/gsasl-2.2.2.tar.gz
+source_sha256: 41e8e442648eccaf6459d9ad93d4b18530b96c8eaf50e3f342532ef275eff3ba
+artifact: gsasl-2.2.2-1.x86_64.oaa
+artifact_sha256: 849b853d270a7212cae2ff2bb20e987feb2fee6ff5dbdda5f680ae652984767e

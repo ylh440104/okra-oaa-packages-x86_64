@@ -1,0 +1,11 @@
+package: app.zlib
+version: 1.3.1
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://zlib.net/fossils/zlib-1.3.1.tar.gz
+source_sha256: 9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
+artifact: zlib-1.3.1-1.x86_64.oaa
+artifact_sha256: c201184694197e96dcf46f498addfa8e3a242e1f2d25473a5c68358bf70d069b

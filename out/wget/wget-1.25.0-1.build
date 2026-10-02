@@ -1,0 +1,11 @@
+package: GNU.wget
+version: 1.25.0
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/wget/wget-1.25.0.tar.gz
+source_sha256: 766e48423e79359ea31e41db9e5c289675947a7fcf2efdcedb726ac9d0da3784
+artifact: wget-1.25.0-1.x86_64.oaa
+artifact_sha256: a53d54c0d1c16285f9316ab73472a361fbd0b2332f2151c70d998a247ac44067

@@ -1,0 +1,11 @@
+package: GNU.findutils
+version: 4.10.0
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/findutils/findutils-4.10.0.tar.xz
+source_sha256: 1387e0b67ff247d2abde998f90dfbf70c1491391a59ddfecb8ae698789f0a4f5
+artifact: findutils-4.10.0-1.x86_64.oaa
+artifact_sha256: 438da37f52f53cfe3c1543244c8ef5a322028bdf9a72681c10d79ea4d6f8cc96

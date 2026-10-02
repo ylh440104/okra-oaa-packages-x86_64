@@ -1,0 +1,11 @@
+package: app.sqlite
+version: 3.47.0
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://sqlite.org/2024/sqlite-autoconf-3470000.tar.gz
+source_sha256: 83eb21a6f6a649f506df8bd3aab85a08f7556ceed5dbd8dea743ea003fc3a957
+artifact: sqlite-3.47.0-1.x86_64.oaa
+artifact_sha256: 9aaae61c579ba6f44d18cf1f3acb2758888ab03fb70189ab88ffffeb9f9e8bd1

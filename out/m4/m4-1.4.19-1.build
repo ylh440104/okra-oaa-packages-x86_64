@@ -1,0 +1,11 @@
+package: GNU.m4
+version: 1.4.19
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/m4/m4-1.4.19.tar.xz
+source_sha256: 63aede5c6d33b6d9b13511cd0be2cac046f2e70fd0a07aa9573a04a82783af96
+artifact: m4-1.4.19-1.x86_64.oaa
+artifact_sha256: aeab7dcd5df9446f105409c8c6090eea85845196d74cfb9d988b256ef0aae2a9

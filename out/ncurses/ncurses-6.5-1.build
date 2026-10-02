@@ -1,0 +1,11 @@
+package: app.ncurses
+version: 6.5
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/ncurses/ncurses-6.5.tar.gz
+source_sha256: 136d91bc269a9a5785e5f9e980bc76ab57428f604ce3e5a5a90cebc767971cc6
+artifact: ncurses-6.5-1.x86_64.oaa
+artifact_sha256: 6ce5e837a04f236e9032fe4c9e7d1ba63fe6534061c10e0077430c2da4d74260

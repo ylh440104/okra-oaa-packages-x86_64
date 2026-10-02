@@ -1,0 +1,11 @@
+package: GNU.coreutils
+version: 9.6
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/coreutils/coreutils-9.6.tar.xz
+source_sha256: 7a0124327b398fd9eb1a6abde583389821422c744ffa10734b24f557610d3283
+artifact: coreutils-9.6-1.x86_64.oaa
+artifact_sha256: 1d4887a763488d7f0a3f09362da0fecdb6397e9cb1bd9e44b8eeb53cdc7b769e

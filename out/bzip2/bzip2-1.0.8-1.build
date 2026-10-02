@@ -1,0 +1,11 @@
+package: app.bzip2
+version: 1.0.8
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://sourceware.org/pub/bzip2/bzip2-1.0.8.tar.gz
+source_sha256: ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269
+artifact: bzip2-1.0.8-1.x86_64.oaa
+artifact_sha256: 19c32a1da0e50dd65d9893020d124ee6c55a16603262b003fa6ea8533adfe685

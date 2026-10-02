@@ -1,0 +1,11 @@
+package: GNU.gettext
+version: 0.24
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/gettext/gettext-0.24.tar.xz
+source_sha256: e1620d518b26d7d3b16ac570e5018206e8b0d725fb65c02d048397718b5cf318
+artifact: gettext-0.24-1.x86_64.oaa
+artifact_sha256: 34e899a1e51861a6c99dde80735d8b5be6c4e6856374eae322b7828f416bf888

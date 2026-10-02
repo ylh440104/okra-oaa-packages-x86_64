@@ -1,0 +1,11 @@
+package: app.rsync
+version: 3.4.1
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://download.samba.org/pub/rsync/src/rsync-3.4.1.tar.gz
+source_sha256: 2924bcb3a1ed8b551fc101f740b9f0fe0a202b115027647cf69850d65fd88c52
+artifact: rsync-3.4.1-1.x86_64.oaa
+artifact_sha256: 887325dd1de16b47c56b16e196da64780fe89d18a7ac41c29f72b2c2813c378c

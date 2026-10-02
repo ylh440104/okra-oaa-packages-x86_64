@@ -1,0 +1,11 @@
+package: app.nettle
+version: 3.10.1
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/nettle/nettle-3.10.1.tar.gz
+source_sha256: b0fcdd7fc0cdea6e80dcf1dd85ba794af0d5b4a57e26397eee3bc193272d9132
+artifact: nettle-3.10.1-1.x86_64.oaa
+artifact_sha256: ab05e83d7ef2bd20e077e8bd852ae8e4e5c1ea2f30a3438fd25e40934a28a846

@@ -1,0 +1,11 @@
+package: GNU.texinfo
+version: 7.2
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/texinfo/texinfo-7.2.tar.xz
+source_sha256: 0329d7788fbef113fa82cb80889ca197a344ce0df7646fe000974c5d714363a6
+artifact: texinfo-7.2-1.x86_64.oaa
+artifact_sha256: b681662492342ff5831306ce1e6d20fbbe6d37552f8167f0eddc269304f1d761

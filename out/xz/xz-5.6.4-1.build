@@ -1,0 +1,11 @@
+package: app.xz
+version: 5.6.4
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://github.com/tukaani-project/xz/releases/download/v5.6.4/xz-5.6.4.tar.gz
+source_sha256: 269e3f2e512cbd3314849982014dc199a7b2148cf5c91cedc6db629acdf5e09b
+artifact: xz-5.6.4-1.x86_64.oaa
+artifact_sha256: b6b97ddba4bc2a3ff457b33d5aebf71e3ff0546a83774cf1e25791dc6005c385

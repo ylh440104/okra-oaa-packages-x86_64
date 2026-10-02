@@ -1,0 +1,11 @@
+package: GNU.make
+version: 4.4.1
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/make/make-4.4.1.tar.gz
+source_sha256: dd16fb1d67bfab79a72f5e8390735c49e3e8e70b4945a15ab1f81ddb78658fb3
+artifact: make-4.4.1-1.x86_64.oaa
+artifact_sha256: 76b8c30e3d751a5db49511fa4ad1c56f3180c8f2713b9f168da06c64225a49f9

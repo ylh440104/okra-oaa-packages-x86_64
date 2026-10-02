@@ -1,0 +1,11 @@
+package: GNU.tar
+version: 1.35
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://mirrors.kernel.org/gnu/tar/tar-1.35.tar.xz
+source_sha256: 4d62ff37342ec7aed748535323930c7cf94acf71c3591882b26a7ea50f3edc16
+artifact: tar-1.35-1.x86_64.oaa
+artifact_sha256: 5043188da0562aefb459ac88aa087c1efb52cc37faaaaaa1eae60b6064917ac6

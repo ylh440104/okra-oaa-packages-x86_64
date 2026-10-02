@@ -1,0 +1,11 @@
+package: app.sudo
+version: 1.9.16
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 6.17.0-1022-azure x86_64
+elf_machine: 62
+source: https://www.sudo.ws/dist/sudo-1.9.16.tar.gz
+source_sha256: c0d84d797f06b732fc573d0b798ae83128c2bc33052057f05b560ec6bcbfa03d
+artifact: sudo-1.9.16-1.x86_64.oaa
+artifact_sha256: d6f41b14a07856e70f0fdaa9d43ae0e244dbfe55ce9cfd2137c4326e98e56daa
