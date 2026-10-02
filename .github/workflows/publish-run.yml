@@ -1,0 +1,67 @@
+name: Publish artifacts from a run
+
+# Publishes the OAA artifacts already produced by a Build OAA packages run,
+# without rebuilding anything. Use it to finish a publish that failed, or to
+# republish a run whose artifacts are still retained.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Build OAA packages run id whose artifacts should be published'
+        required: true
+      tag:
+        description: 'Release tag to upload to'
+        required: false
+        default: 'packages'
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: oaa-*
+          merge-multiple: true
+          path: publish
+          run-id: ${{ github.event.inputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check the artifacts are x86_64
+        run: |
+          set -euo pipefail
+          count="$(find publish -name '*.oaa' | wc -l)"
+          echo "found $count archives"
+          test "$count" -gt 0 || { echo "no archives in that run" >&2; exit 1; }
+          test "$(find publish -name '*.oaa' ! -name '*.x86_64.oaa' | wc -l)" = "0" || {
+            echo "a non-x86_64 archive is present" >&2
+            find publish -name '*.oaa' ! -name '*.x86_64.oaa'
+            exit 1
+          }
+          bad="$(grep -L '^target_arch: x86_64$' publish/*.build 2>/dev/null || true)"
+          test -z "$bad" || { echo "build records missing target_arch: $bad" >&2; exit 1; }
+          echo "every archive is x86_64"
+
+      - name: Ensure the release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          tag="${{ github.event.inputs.tag }}"
+          gh release view "$tag" >/dev/null 2>&1 || \
+            gh release create "$tag" --title "$tag" --notes "OkraLinux x86_64 OAA packages rebuilt with the current okrapm toolchain (OAABI 1)."
+
+      - name: Upload the artifacts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(publish/*.oaa)
+          gh release upload "${{ github.event.inputs.tag }}" "${files[@]}" --clobber
+          echo "uploaded ${#files[@]} artifacts to ${{ github.event.inputs.tag }}"

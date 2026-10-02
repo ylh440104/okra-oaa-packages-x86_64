@@ -26,6 +26,7 @@ This repository rebuilds the same recipe set against the current toolchain:
 | `scripts/build-toolchain.sh` | Builds okrapm and installs a self-hosting Okra toolchain (glibc, binutils, gcc, make, bash, coreutils). |
 | `out/<name>/` | Committed metadata only: the `.sha256` sidecar and the `.sources` record. |
 | `.github/workflows/build-packages.yml` | CI: one matrix job per recipe, then publish. |
+| `.github/workflows/publish-run.yml` | Manual: publish the artifacts of an existing build run, no rebuild. |
 | `.github/workflows/bootstrap-toolchain.yml` | Experimental, manual only: self-hosting toolchain plus its own `uname`. |
 | `scripts/selftest.sh` | Checks the architecture guards without building anything. |
 
