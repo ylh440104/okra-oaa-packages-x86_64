@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/libffi/libffi/releases/download/v3.4.6/libffi-3.4.6.tar.gz
 source_sha256: b0dea9df23c863a7a50e825440f3ebffabd65df1497108e5d437747843895a4e
 artifact: libffi-3.4.6-1.x86_64.oaa
-artifact_sha256: 738add57b38837d6ca7039161d179de39232a4123512274655a452533d6881bd
+artifact_sha256: ed3fe183439aec20ca3dde702c84c425d44b76e83dcb31a35a463384f4ee1a1e

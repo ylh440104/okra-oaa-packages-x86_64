@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/patch/patch-2.7.6.tar.xz
 source_sha256: ac610bda97abe0d9f6b7c963255a11dcb196c25e337c61f94e4778d632f1d8fd
 artifact: patch-2.7.6-1.x86_64.oaa
-artifact_sha256: 3781e5b58230722b3767466c44c9b97f4b418e20d3d0414c7576b4b480291726
+artifact_sha256: 33723e669fcae98d1dbe6f9a3f53c2f1c75246f6478674051a131cc0b83da05d

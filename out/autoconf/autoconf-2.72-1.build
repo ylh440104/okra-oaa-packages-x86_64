@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/autoconf/autoconf-2.72.tar.xz
 source_sha256: ba885c1319578d6c94d46e9b0dceb4014caafe2490e437a0dbca3f270a223f5a
 artifact: autoconf-2.72-1.x86_64.oaa
-artifact_sha256: 265dc76b86ae923fc98c1a2047d0b47306eef6274d79cd448e47e4904706b008
+artifact_sha256: 1bedd0ad55f610d81cca1fe602a10e3455723df56f194f8d34b13939057fe8b8

@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/dosfstools/dosfstools/releases/download/v4.2/dosfstools-4.2.tar.gz
 source_sha256: 64926eebf90092dca21b14259a5301b7b98e7b1943e8a201c7d726084809b527
 artifact: dosfstools-4.2-1.x86_64.oaa
-artifact_sha256: 0be8332418b30f745b204330d36abfe683c0c534e58302cabcb31b7fdb3d479a
+artifact_sha256: 96a9dfb66aabf9fa1e76a530dfbc68ab1507fd0c89728a4cf722f0c6ef232ec8

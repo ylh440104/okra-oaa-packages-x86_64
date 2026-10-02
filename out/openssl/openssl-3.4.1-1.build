@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/openssl/openssl/releases/download/openssl-3.4.1/openssl-3.4.1.tar.gz
 source_sha256: 002a2d6b30b58bf4bea46c43bdd96365aaf8daa6c428782aa4feee06da197df3
 artifact: openssl-3.4.1-1.x86_64.oaa
-artifact_sha256: 77db1eed781869f8a9cb49c7d0ff3eb875b612f957ba0adb843b8f8bfbe28d28
+artifact_sha256: 48dcc77ed0f800ff37d5ddba06be0f299a7dcc1ad4b62ae52642fc22ac763ccc

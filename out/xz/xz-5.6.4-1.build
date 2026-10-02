@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/tukaani-project/xz/releases/download/v5.6.4/xz-5.6.4.tar.gz
 source_sha256: 269e3f2e512cbd3314849982014dc199a7b2148cf5c91cedc6db629acdf5e09b
 artifact: xz-5.6.4-1.x86_64.oaa
-artifact_sha256: 3be473329fc16f5c9795646d4a6da1b525c7bf17644c5a1d04a5dfde9768d8ed
+artifact_sha256: 0fe43e67698d9e80c90d9911bd1476c6eb11ac0a62980fd27d396900b70d1932
