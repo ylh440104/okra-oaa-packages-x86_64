@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/gdbm/gdbm-1.24.tar.gz
 source_sha256: 695e9827fdf763513f133910bc7e6cfdb9187943a4fec943e57449723d2b8dbf
 artifact: gdbm-1.24-1.x86_64.oaa
-artifact_sha256: 83b9e28c1de5546c344b4ffd203ec7547231d42b61d73e9c73a5feb1de553779
+artifact_sha256: 0700ec940c89cc31f09085e9182249c3bfb7ecb12542a2f5256b975a116def39

@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-2.73.tar.xz
 source_sha256: 6405f6089cf4cdd8c271540cd990654d78dd0b1989b2d9bda20f933a75a795a5
 artifact: libcap-2.73-1.x86_64.oaa
-artifact_sha256: 0272a97e44610eab01e91e9ed2a357f7f6d0c64f979a99ae7fe544e12e1fc931
+artifact_sha256: 5f6cfba2a9eceb3a3f2a08c00a37cc404d8ceee533cc50d9a0d490d60c45480d

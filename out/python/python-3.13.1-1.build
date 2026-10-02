@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://www.python.org/ftp/python/3.13.1/Python-3.13.1.tar.xz
 source_sha256: 9cf9427bee9e2242e3877dd0f6b641c1853ca461f39d6503ce260a59c80bf0d9
 artifact: python-3.13.1-1.x86_64.oaa
-artifact_sha256: c640981d0dd16c81e2002bbb9221343140b60bb3446e3b4e73d13bb95ef9737d
+artifact_sha256: 6a732286070d389f991fa1392e5aa18289fa9b36a8f983be21a85bda69a9cb8d
