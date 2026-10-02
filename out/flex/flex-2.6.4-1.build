@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/westes/flex/releases/download/v2.6.4/flex-2.6.4.tar.gz
 source_sha256: e87aae032bf07c26f85ac0ed3250998c37621d95f8bd748b31f15b33c45ee995
 artifact: flex-2.6.4-1.x86_64.oaa
-artifact_sha256: 86b25c37fecd3276b0e0a7b61e7444f4c6997da5a9528d278e1771800038fb2f
+artifact_sha256: e02b011e63fe02a7ba429ae4a77c597b250dcbeb594c79cb5c2a549211a38636

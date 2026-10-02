@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://astron.com/pub/file/file-5.46.tar.gz
 source_sha256: c9cc77c7c560c543135edc555af609d5619dbef011997e988ce40a3d75d86088
 artifact: file-5.46-1.x86_64.oaa
-artifact_sha256: 38ec6d2bb9947774326a843b48061631aa023a919226d1f858f05092e5f9b61c
+artifact_sha256: f2716e28cf0801c591541014aa89557a8cfa34fd62389b71742889817abe77d4

@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/seccomp/libseccomp/releases/download/v2.5.5/libseccomp-2.5.5.tar.gz
 source_sha256: 248a2c8a4d9b9858aa6baf52712c34afefcf9c9e94b76dce02c1c9aa25fb3375
 artifact: libseccomp-2.5.5-1.x86_64.oaa
-artifact_sha256: 837410bc23a412e36e1f777df89e592a80cc970289540e1d50020a53748d2b6b
+artifact_sha256: 800b40141541ee5e5c1ef367740c54fbe9a6230649c689dc23721da2296d3de4

@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/which/which-2.21.tar.gz
 source_sha256: f4a245b94124b377d8b49646bf421f9155d36aa7614b6ebf83705d3ffc76eaad
 artifact: which-2.21-1.x86_64.oaa
-artifact_sha256: ffa819f14911fc06b1832190912d33a82b482370f7b0ba307838d1a1426aaa7e
+artifact_sha256: cb87399c7b29a276cb29d07e480c84c32f0102c759b8d0215962e8b9d1f83848

@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/gettext/gettext-0.24.tar.xz
 source_sha256: e1620d518b26d7d3b16ac570e5018206e8b0d725fb65c02d048397718b5cf318
 artifact: gettext-0.24-1.x86_64.oaa
-artifact_sha256: 2acde8db01041898d3fbe63f0482c392348138d652ad2a499081a5778efa9967
+artifact_sha256: fe79a1d0c068aba3c7a980ad38740abaf51f0ab20d974cf6653397bc78536a24
