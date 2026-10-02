@@ -253,8 +253,15 @@ BuildGlibc() {
 	# C++ branch, tries to rebuild links-dso-program, and fails on a target
 	# that only the C++ configuration defines.
 	make install install_root="$Sysroot" CXX=
-	[ -f "$Sysroot/usr/lib/libc.so.6" ] || { echo "glibc was not installed into the sysroot" >&2; return 1; }
+	# glibc installs into ${prefix}/lib64 on x86_64, not ${prefix}/lib, so the
+	# check looks for libc.so.6 anywhere in the sysroot rather than assuming
+	# a directory. OkraSysrootLibraryPath() finds the same directories later.
+	[ -n "$(find "$Sysroot" -name 'libc.so.6' -type f -print -quit)" ] || {
+		echo "glibc was not installed into the sysroot" >&2
+		return 1
+	}
 	[ -f "$Sysroot/lib64/ld-linux-x86-64.so.2" ] || { echo "the Okra dynamic loader is missing" >&2; return 1; }
+	echo "== glibc installed: $(find "$Sysroot" -name 'libc.so.6' -type f -print -quit)"
 }
 
 # BuildGccStage2() - build the full cross compiler.
@@ -297,10 +304,10 @@ BuildGccStage2() {
 }
 
 # OkraLibraryPath() - print the library search path inside the Okra sysroot.
-# @None.
+# @None. x86_64 glibc installs into lib64, so both directories are listed.
 # Return: 0 and a colon separated path.
 OkraLibraryPath() {
-	printf '%s' "$Sysroot/usr/lib:$Sysroot/lib64:$Sysroot/lib"
+	printf '%s' "$Sysroot/lib64:$Sysroot/usr/lib64:$Sysroot/usr/lib:$Sysroot/lib"
 }
 
 # VerifyToolchain() - prove the toolchain builds runnable Okra binaries.
