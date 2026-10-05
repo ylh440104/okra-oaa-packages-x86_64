@@ -96,14 +96,6 @@ echo "== the userland"
 uname -m
 ldd --version 2>/dev/null | head -1 || true
 
-# HasLibelf() - test whether the userland can link objtool.
-HasLibelf() {
-	for Candidate in /usr/lib/libelf.so /usr/lib/libelf.a /usr/lib64/libelf.so /lib64/libelf.so; do
-		[ -e "$Candidate" ] && return 0
-	done
-	return 1
-}
-
 # ConfigureFull() - the virtual machine oriented configuration.
 ConfigureFull() {
 	make defconfig || return 1
@@ -120,23 +112,52 @@ ConfigureFull() {
 	./scripts/config \
 		--set-str CONFIG_SYSTEM_TRUSTED_KEYS "" \
 		--set-str CONFIG_SYSTEM_REVOCATION_KEYS ""
-	# x86_64 defconfig enables CONFIG_UNWINDER_ORC, whose objtool links against
-	# libelf. elfutils is not part of the userland, so the objtool based options
-	# go away and the frame pointer unwinder is used instead. They are kept when
-	# libelf is there, so the kernel gets the better unwinder as soon as
-	# elfutils joins the package set.
-	if HasLibelf; then
-		echo "== libelf is available; keeping the objtool based options"
-	else
-		echo "== no libelf in the userland; using the frame pointer unwinder"
-		./scripts/config \
-			--disable CONFIG_UNWINDER_ORC \
-			--enable CONFIG_UNWINDER_FRAME_POINTER \
-			--disable CONFIG_STACK_VALIDATION \
-			--disable CONFIG_DEBUG_INFO_BTF \
-			--disable CONFIG_X86_KERNEL_IBT
-	fi
+	DisableObjtool || return 1
 	make olddefconfig || return 1
+	AssertNoObjtool || return 1
+}
+
+# DisableObjtool() - drop every option that makes the build need objtool.
+#
+# objtool is a host tool the kernel builds during prepare, and it includes
+# <gelf.h> from elfutils, which the userland does not carry. Everything that
+# needs it is therefore switched off. The list is every option that selects
+# OBJTOOL in this tree:
+#
+#   UNWINDER_ORC          default y on x86_64
+#   STACK_VALIDATION      needs UNWINDER_FRAME_POINTER, so the frame pointer
+#                         unwinder must not be forced on either
+#   NOINSTR_VALIDATION    default y
+#   X86_KERNEL_IBT        default y
+#   MITIGATION_RETHUNK    default y if X86_64
+#   MITIGATION_RETPOLINE  default y
+#   KCOV                  off by default, disabled for completeness
+#
+# Losing them costs ORC stack traces, IBT and the return thunks. The kernel
+# still builds and boots.
+DisableObjtool() {
+	./scripts/config \
+		--disable CONFIG_UNWINDER_ORC \
+		--disable CONFIG_STACK_VALIDATION \
+		--disable CONFIG_NOINSTR_VALIDATION \
+		--disable CONFIG_X86_KERNEL_IBT \
+		--disable CONFIG_MITIGATION_RETHUNK \
+		--disable CONFIG_MITIGATION_RETPOLINE \
+		--disable CONFIG_KCOV
+}
+
+# AssertNoObjtool() - fail before the long build when objtool is still needed.
+#
+# This is what turns a forty minute blind run into an immediate answer: if a
+# selector survived, the options that are still on are printed.
+AssertNoObjtool() {
+	if ! grep -q '^CONFIG_OBJTOOL=y' .config; then
+		echo "== CONFIG_OBJTOOL is off; objtool will not be built"
+		return 0
+	fi
+	echo "== CONFIG_OBJTOOL is still on; these selectors are enabled:" >&2
+	grep -E '^CONFIG_(UNWINDER_ORC|STACK_VALIDATION|NOINSTR_VALIDATION|X86_KERNEL_IBT|MITIGATION_RETHUNK|MITIGATION_RETPOLINE|KCOV)=y' .config >&2 || true
+	return 1
 }
 
 # ConfigureMinimal() - the fallback when the full configuration will not build.
@@ -157,7 +178,9 @@ ConfigureMinimal() {
 		--enable CONFIG_SYSFS \
 		--set-str CONFIG_SYSTEM_TRUSTED_KEYS "" \
 		--set-str CONFIG_SYSTEM_REVOCATION_KEYS ""
+	DisableObjtool || return 1
 	make olddefconfig || return 1
+	AssertNoObjtool || return 1
 }
 
 Build() {
