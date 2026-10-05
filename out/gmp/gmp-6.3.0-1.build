@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/gmp/gmp-6.3.0.tar.xz
 source_sha256: a3c2b80201b89e68616f4ad30bc66aee4927c3ce50e33929ca819d5c43538898
 artifact: gmp-6.3.0-1.x86_64.oaa
-artifact_sha256: daf7018bcb6ac9a4ba57ee15c1347cd6b5ee83d1ae442cd608076acc56018a3a
+artifact_sha256: c520b3603e28cd79ac0c666bb08942dffda40e0df501756e02b94593954b73a2

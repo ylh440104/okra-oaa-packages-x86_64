@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://www.sudo.ws/dist/sudo-1.9.16.tar.gz
 source_sha256: c0d84d797f06b732fc573d0b798ae83128c2bc33052057f05b560ec6bcbfa03d
 artifact: sudo-1.9.16-1.x86_64.oaa
-artifact_sha256: ca8596cca61d6d6327372524159200e6ec4c6a144a404a53e6a1bfd15bb633fa
+artifact_sha256: 413cb89c251a814c5a4de587ab7e13aea8a1d5788dc7b6052d3e7e84d667cdf7

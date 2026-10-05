@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/readline/readline-8.2.tar.gz
 source_sha256: 3feb7171f16a84ee82ca18a36d7b9be109a52c04f492a053331d7d1095007c35
 artifact: readline-8.2-1.x86_64.oaa
-artifact_sha256: 0241ef9d4a2ea1857da9a30e32679ce93ceb38ef67ac7c5756795a442bb29d88
+artifact_sha256: 76878bca5b7d8543096c55abdc0028b69caf4e163444c2efff3a5023e1fdcf39
