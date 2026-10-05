@@ -87,7 +87,14 @@ echo "== toolchain reuse"
 # The list of toolchain inputs decides whether a published toolchain may be
 # reused. It must not be empty, must name the toolchain script, and must not
 # accidentally include the workflow itself (which changes far more often).
-Inputs="$(OkraToolchainInputs)"
+InputFile="$RepositoryRoot/scripts/toolchain-inputs.txt"
+Inputs=""
+if [ -f "$InputFile" ]; then
+	Inputs="$(cat "$InputFile")"
+else
+	echo "FAIL toolchain input list is missing: $InputFile"
+	Failures=$((Failures + 1))
+fi
 [ -n "$Inputs" ] || { echo "FAIL toolchain inputs are empty"; Failures=$((Failures + 1)); }
 case "$Inputs" in
 	*scripts/build-cross-toolchain.sh*) echo "ok   toolchain inputs name the toolchain script" ;;

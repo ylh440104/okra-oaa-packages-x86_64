@@ -31,8 +31,6 @@ ProbeOnly="${OKRA_TOOLCHAIN_PROBE:-0}"
 
 ScriptDirectory="$(cd "$(dirname "$0")" && pwd)"
 RepositoryRoot="${OKRA_REPO_ROOT:-$(cd "$ScriptDirectory/.." && pwd)}"
-# shellcheck disable=SC1091
-. "$RepositoryRoot/scripts/lib.sh"
 
 # Already restored, or left over from an earlier step in the same job.
 if [ -x "$ToolchainRoot/cross/bin/$TargetTriple-gcc" ] &&
@@ -62,11 +60,20 @@ if [ -z "$Candidates" ]; then
 fi
 
 CurrentCommit="$(git -C "$RepositoryRoot" rev-parse HEAD)"
+InputFile="$ScriptDirectory/toolchain-inputs.txt"
+[ -f "$InputFile" ] || {
+	echo "the toolchain input list is missing: $InputFile" >&2
+	exit 1
+}
 Inputs=()
 while IFS= read -r Input; do
 	[ -n "$Input" ] || continue
 	Inputs+=("$Input")
-done < <(OkraToolchainInputs)
+done < "$InputFile"
+[ "${#Inputs[@]}" -gt 0 ] || {
+	echo "the toolchain input list is empty: $InputFile" >&2
+	exit 1
+}
 
 # CompareToolchainInputs() - test whether a published toolchain is still valid.
 # @Commit: the commit the published toolchain was built from.

@@ -25,6 +25,9 @@ This repository rebuilds the same recipe set against the current toolchain:
 | `scripts/build-package.sh` | Builds one recipe into `<name>-<version>-<release>.<arch>.oaa`. |
 | `scripts/build-toolchain.sh` | Experimental host-native toolchain attempt, kept for reference. |
 | `scripts/build-cross-toolchain.sh` | Builds the self-hosting `x86_64-okra-linux-gnu` cross toolchain. |
+| `scripts/find-toolchain-run.sh` | Lists the runs that published a still downloadable cross toolchain. |
+| `scripts/restore-toolchain.sh` | Reuses a published cross toolchain instead of rebuilding it. |
+| `scripts/toolchain-inputs.txt` | The files that define the toolchain; changing one forces a rebuild. |
 | `out/<name>/` | Committed metadata only: the `.sha256` sidecar and the `.sources` record. |
 | `.github/workflows/build-packages.yml` | CI: one matrix job per recipe, then publish. |
 | `.github/workflows/publish-run.yml` | Manual: publish the artifacts of an existing build run, no rebuild. |
@@ -87,6 +90,23 @@ directory is then put ahead of the host toolchain by
 `ApplyToolchainEnvironment()`, so `gcc`, `make` and friends resolve to the Okra
 build while the packages are compiled. `scripts/build-toolchain.sh` drives the
 whole order: okrapm first, then glibc, binutils, gcc, make, bash, coreutils.
+
+## Reusing the cross toolchain
+
+`scripts/build-cross-toolchain.sh` takes about half an hour, so its result is
+published as the `okra-cross-toolchain` artifact and reused instead of rebuilt.
+
+`scripts/restore-toolchain.sh` looks for a published toolchain and unpacks it.
+A toolchain is only reused when it would come out identical: the commit that
+published it must have the same `scripts/build-cross-toolchain.sh`,
+`scripts/lib.sh` and `glibc`/`gcc`/`binutils` recipes as the current one. That
+list lives in `scripts/toolchain-inputs.txt`, and the comparison is a plain
+`git diff`, so editing the toolchain always forces a rebuild. Editing anything
+else — a recipe for an ordinary package, the workflow — does not.
+
+`find-toolchain-run.sh` lists the candidates (newest first, with the commit each
+was built from); `restore-toolchain.sh` decides which one is still valid. Set
+`OKRA_TOOLCHAIN_PROBE=1` to check availability without downloading anything.
 
 ## Publishing
 
