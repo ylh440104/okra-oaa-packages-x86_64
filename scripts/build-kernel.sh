@@ -84,27 +84,106 @@ ChrootMounted=1
 # back to a cross compiler by accident.
 cat > "$RootfsDirectory/usr/src/build-kernel.sh" <<'INNER'
 #!/bin/bash
-set -euo pipefail
+# The kernel is built with the compiler that is inside this rootfs, which is the
+# one the bootstrap produced. Nothing here reaches back to the cross toolchain.
+set -uo pipefail
 cd /usr/src/kernel
+
 echo "== compiler inside the chroot"
 command -v gcc
 gcc --version | head -1
-echo "== kernel configuration"
-make defconfig
-# A minimal set of options that keep the image usable in a virtual machine.
-./scripts/config \
-	--enable CONFIG_VIRTIO \
-	--enable CONFIG_VIRTIO_PCI \
-	--enable CONFIG_VIRTIO_BLK \
-	--enable CONFIG_VIRTIO_NET \
-	--enable CONFIG_BLK_DEV_INITRD \
-	--enable CONFIG_DEVTMPFS \
-	--enable CONFIG_DEVTMPFS_MOUNT
-make olddefconfig
-echo "== building vmlinux"
-make -j"${JOBS}" vmlinux
-echo "== building the bzImage"
-make -j"${JOBS}" bzImage
+echo "== the userland"
+uname -m
+ldd --version 2>/dev/null | head -1 || true
+
+# HasLibelf() - test whether the userland can link objtool.
+HasLibelf() {
+	for Candidate in /usr/lib/libelf.so /usr/lib/libelf.a /usr/lib64/libelf.so /lib64/libelf.so; do
+		[ -e "$Candidate" ] && return 0
+	done
+	return 1
+}
+
+# ConfigureFull() - the virtual machine oriented configuration.
+ConfigureFull() {
+	make defconfig || return 1
+	./scripts/config \
+		--enable CONFIG_VIRTIO \
+		--enable CONFIG_VIRTIO_PCI \
+		--enable CONFIG_VIRTIO_BLK \
+		--enable CONFIG_VIRTIO_NET \
+		--enable CONFIG_BLK_DEV_INITRD \
+		--enable CONFIG_DEVTMPFS \
+		--enable CONFIG_DEVTMPFS_MOUNT
+	# An empty key list keeps the build from looking for certificates the
+	# userland does not carry.
+	./scripts/config \
+		--set-str CONFIG_SYSTEM_TRUSTED_KEYS "" \
+		--set-str CONFIG_SYSTEM_REVOCATION_KEYS ""
+	# x86_64 defconfig enables CONFIG_UNWINDER_ORC, whose objtool links against
+	# libelf. elfutils is not part of the userland, so the objtool based options
+	# go away and the frame pointer unwinder is used instead. They are kept when
+	# libelf is there, so the kernel gets the better unwinder as soon as
+	# elfutils joins the package set.
+	if HasLibelf; then
+		echo "== libelf is available; keeping the objtool based options"
+	else
+		echo "== no libelf in the userland; using the frame pointer unwinder"
+		./scripts/config \
+			--disable CONFIG_UNWINDER_ORC \
+			--enable CONFIG_UNWINDER_FRAME_POINTER \
+			--disable CONFIG_STACK_VALIDATION \
+			--disable CONFIG_DEBUG_INFO_BTF \
+			--disable CONFIG_X86_KERNEL_IBT
+	fi
+	make olddefconfig || return 1
+}
+
+# ConfigureMinimal() - the fallback when the full configuration will not build.
+# Only what is needed to produce a bootable image.
+ConfigureMinimal() {
+	make allnoconfig || return 1
+	./scripts/config \
+		--enable CONFIG_64BIT \
+		--enable CONFIG_X86_64 \
+		--enable CONFIG_BINFMT_ELF \
+		--enable CONFIG_BLK_DEV_INITRD \
+		--enable CONFIG_DEVTMPFS \
+		--enable CONFIG_DEVTMPFS_MOUNT \
+		--enable CONFIG_TTY \
+		--enable CONFIG_PRINTK \
+		--enable CONFIG_MULTIUSER \
+		--enable CONFIG_PROC_FS \
+		--enable CONFIG_SYSFS \
+		--set-str CONFIG_SYSTEM_TRUSTED_KEYS "" \
+		--set-str CONFIG_SYSTEM_REVOCATION_KEYS ""
+	make olddefconfig || return 1
+}
+
+Build() {
+	echo "== configuration: $1"
+	"$1" || return 1
+	echo "== building vmlinux"
+	make -j"${JOBS}" vmlinux || return 1
+	echo "== building the bzImage"
+	make -j"${JOBS}" bzImage || return 1
+	return 0
+}
+
+if Build ConfigureFull; then
+	echo "== the full configuration built"
+else
+	echo "== the full configuration failed; falling back to a minimal one" >&2
+	# The failing tree is left alone: make clean would remove the diagnostics
+	# that explain the failure.
+	make mrproper >/dev/null 2>&1 || true
+	if Build ConfigureMinimal; then
+		echo "== the minimal configuration built"
+	else
+		echo "== the kernel could not be built at all" >&2
+		exit 1
+	fi
+fi
 echo "== kernel build finished"
 INNER
 chmod +x "$RootfsDirectory/usr/src/build-kernel.sh"

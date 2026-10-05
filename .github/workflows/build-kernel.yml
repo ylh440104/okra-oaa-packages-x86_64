@@ -58,7 +58,19 @@ jobs:
             --dir "$RUNNER_TEMP/userland"
           ls -la "$RUNNER_TEMP/userland"
           cd "$RUNNER_TEMP/userland"
-          sha256sum -c okra-rootfs.tar.zst.sha256
+          # Compare the hashes rather than running sha256sum -c: the recorded
+          # file name is the absolute path the publish run used, which does not
+          # exist on this runner.
+          Expected="$(awk 'NR == 1 {print $1}' okra-rootfs.tar.zst.sha256)"
+          Actual="$(sha256sum okra-rootfs.tar.zst | awk '{print $1}')"
+          test -n "$Expected" || { echo "the checksum file is empty" >&2; exit 1; }
+          test "$Expected" = "$Actual" || {
+            echo "the userland checksum does not match" >&2
+            echo "expected $Expected" >&2
+            echo "actual   $Actual" >&2
+            exit 1
+          }
+          echo "checksum ok: $Actual"
 
       - name: Unpack the userland
         run: |
