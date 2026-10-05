@@ -93,12 +93,14 @@ jobs:
       - name: Build the userland tree
         run: |
           set -euo pipefail
-          # The toolchain sysroot already holds glibc plus every package the
-          # bootstrap installed, so it is copied as the base and then checked.
+          # Two layers: the toolchain sysroot holds the glibc the toolchain
+          # stage built, the downloaded archives hold the self-hosted packages.
+          # The toolchain artifact does not contain the packages, because the
+          # bootstrap job installs them into a sysroot on its own runner.
           sudo mkdir -p "$RUNNER_TEMP/okra-rootfs"
           sudo chown "$(id -u):$(id -g)" "$RUNNER_TEMP/okra-rootfs"
           cp -a --remove-destination "$OKRA_TOOLCHAIN/okra-sysroot/." "$RUNNER_TEMP/okra-rootfs"/
-          ./scripts/assemble-rootfs.sh "$RUNNER_TEMP/okra-rootfs"
+          ./scripts/assemble-rootfs.sh "$RUNNER_TEMP/okra-rootfs" "$RUNNER_TEMP/okra-bootstrapped"
 
       - name: Prove the userland runs on its own
         run: |

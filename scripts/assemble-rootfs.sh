@@ -1,22 +1,56 @@
 #!/bin/bash
 # assemble-rootfs.sh - turn a bootstrapped sysroot into a chrootable rootfs.
 #
-# The bootstrap installs every self-hosted package into the toolchain sysroot,
-# so that tree already is the Okra userland: glibc from the toolchain stage plus
-# all 70 packages on top of it. This script takes a copy of that tree and adds
-# what a Unix system needs but no package provides - the usual top level
-# directories, /bin/sh, the account files - and then checks that the result can
-# actually stand on its own.
+# A usable Okra userland is two layers: the toolchain sysroot, which holds the
+# glibc the toolchain stage built, and the self-hosted packages on top of it.
+# The packages are published as .oaa archives and are not part of the toolchain
+# artifact, because the bootstrap job installs them into a sysroot on its own
+# runner. Pass the archive directory to layer them in.
 #
-# It does not build or install anything. Run it on a rootfs that already holds
-# /usr/bin/gcc and /lib64/ld-linux-x86-64.so.2.
+# On top of that this adds what a Unix system needs but no package provides -
+# the usual top level directories, /bin/sh, the account files - and then checks
+# that the result can actually stand on its own.
 #
-# Usage: assemble-rootfs.sh <rootfs-dir>
+# It does not build anything. Run it on a rootfs that already holds
+# /lib64/ld-linux-x86-64.so.2.
+#
+# Usage: assemble-rootfs.sh <rootfs-dir> [archive-dir]
 # Return: 0 when the rootfs is ready to chroot into, 1 otherwise.
 set -euo pipefail
 
-RootfsDirectory="${1:?usage: assemble-rootfs.sh <rootfs-dir>}"
+RootfsDirectory="${1:?usage: assemble-rootfs.sh <rootfs-dir> [archive-dir]}"
+ArchiveDirectory="${2:-}"
 [ -d "$RootfsDirectory" ] || { echo "no rootfs at $RootfsDirectory" >&2; exit 1; }
+
+if [ -n "$ArchiveDirectory" ]; then
+	[ -d "$ArchiveDirectory" ] || { echo "no archive directory at $ArchiveDirectory" >&2; exit 1; }
+	Scratch="$(mktemp -d)"
+	trap 'rm -rf "$Scratch"' EXIT
+
+	echo "== layering the self-hosted packages"
+	Layered=0
+	# Sorted so the layering order does not depend on the filesystem.
+	while IFS= read -r Archive; do
+		[ -n "$Archive" ] || continue
+		rm -rf "$Scratch/unpack"
+		mkdir -p "$Scratch/unpack"
+		tar --zstd -xf "$Archive" -C "$Scratch/unpack" || {
+			echo "cannot unpack $Archive" >&2
+			exit 1
+		}
+		[ -d "$Scratch/unpack/rootfs" ] || {
+			echo "$Archive has no rootfs directory" >&2
+			exit 1
+		}
+		# --remove-destination so a package replacing an entry that is already
+		# a symlink does not end up writing through it (e2fsprogs and
+		# util-linux both ship libuuid.a).
+		cp -a --remove-destination "$Scratch/unpack/rootfs/." "$RootfsDirectory"/
+		Layered=$((Layered + 1))
+	done < <(find "$ArchiveDirectory" -name '*.oaa' | sort)
+	echo "== layered $Layered archives"
+	[ "$Layered" -gt 0 ] || { echo "no archives were layered" >&2; exit 1; }
+fi
 
 echo "== filling in the directories a system needs"
 mkdir -p "$RootfsDirectory"/{bin,sbin,etc,var,tmp,proc,sys,dev,run,root,home,boot,usr/src}
