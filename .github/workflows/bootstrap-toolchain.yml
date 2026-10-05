@@ -230,22 +230,22 @@ jobs:
 
       - name: Rebuild every package with the cross toolchain
         run: |
-          set -euo pipefail
+          set -uo pipefail
           mkdir -p "$RUNNER_TEMP/okra-artifacts"
           export OKRA_OAATOOLS="$PWD/okrapm/oaatools"
           echo "bootstrapping ${{ steps.order.outputs.count }} packages"
-          Failed=""
+          # A failing recipe must not throw away the packages that did build, so
+          # this step always succeeds and records the failures for the verify
+          # step and for the uploads that follow it.
+          : > "$RUNNER_TEMP/okra-artifacts/failed"
           for name in ${{ steps.order.outputs.names }}; do
             echo "== bootstrapping $name"
             if ! OKRA_PACKAGE_MODE=bootstrap ./scripts/build-package.sh "$name"; then
               echo "!! $name failed to bootstrap" >&2
-              Failed="$Failed $name"
+              echo "$name" >> "$RUNNER_TEMP/okra-artifacts/failed"
             fi
           done
-          if [ -n "$Failed" ]; then
-            echo "these packages failed to bootstrap:$Failed" >&2
-            exit 1
-          fi
+          echo "== bootstrapped $(find "$RUNNER_TEMP/okra-artifacts" -name '*.oaa' | wc -l) of ${{ steps.order.outputs.count }} packages"
 
       - name: Verify the bootstrapped packages
         run: |

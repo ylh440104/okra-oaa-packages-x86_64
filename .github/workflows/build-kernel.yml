@@ -1,0 +1,122 @@
+name: Build the Okra kernel
+
+# Builds the Okra Linux kernel with the Okra userland published by
+# "Publish the Okra userland".
+#
+# This workflow deliberately depends on nothing else. It downloads the rootfs
+# tarball from the release, unpacks it, and builds the kernel inside it with the
+# gcc that rootfs contains - the compiler the bootstrap produced. The half hour
+# cross toolchain and the hour long bootstrap are not re-run: they only have to
+# happen once, and their result is the release.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag holding the rootfs'
+        required: false
+        default: 'okra-userland'
+      kernel_ref:
+        description: 'KERNEL branch, tag or commit to build'
+        required: false
+        default: 'main'
+      publish:
+        description: 'Upload the kernel to the release when it builds'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  OKRA_JOBS: '4'
+
+jobs:
+  kernel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install what a kernel build needs
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bc bison flex libssl-dev libelf-dev \
+            tar xz-utils zstd gzip bzip2 lzip file rsync python3 wget ca-certificates
+
+      - name: Download the published userland
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          Tag="${{ github.event.inputs.tag }}"
+          mkdir -p "$RUNNER_TEMP/userland"
+          gh release download "$Tag" \
+            --repo "${{ github.repository }}" \
+            --pattern 'okra-rootfs.tar.zst*' \
+            --dir "$RUNNER_TEMP/userland"
+          ls -la "$RUNNER_TEMP/userland"
+          cd "$RUNNER_TEMP/userland"
+          sha256sum -c okra-rootfs.tar.zst.sha256
+
+      - name: Unpack the userland
+        run: |
+          set -euo pipefail
+          sudo tar --zstd -xf "$RUNNER_TEMP/userland/okra-rootfs.tar.zst" -C "$RUNNER_TEMP"
+          sudo chown -R "$(id -u):$(id -g)" "$RUNNER_TEMP/okra-rootfs"
+          ./scripts/assemble-rootfs.sh "$RUNNER_TEMP/okra-rootfs"
+
+      - name: Show which compiler the kernel will use
+        run: |
+          set -euo pipefail
+          echo "== the compiler inside the userland"
+          sudo chroot "$RUNNER_TEMP/okra-rootfs" /usr/bin/env -i \
+            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+            /bin/bash -c 'command -v gcc; gcc --version | head -1; uname -m'
+          echo "== the loader the userland uses"
+          file "$RUNNER_TEMP/okra-rootfs/lib64/ld-linux-x86-64.so.2"
+
+      - name: Build the kernel inside the userland
+        env:
+          OKRA_KERNEL_REF: ${{ github.event.inputs.kernel_ref }}
+        run: |
+          set -euo pipefail
+          sudo -E ./scripts/build-kernel.sh \
+            "$RUNNER_TEMP/okra-rootfs" \
+            "$RUNNER_TEMP/okra-kernel"
+          sudo chown -R "$(id -u):$(id -g)" "$RUNNER_TEMP/okra-kernel"
+
+      - name: Show what the kernel image records
+        run: |
+          set -euo pipefail
+          cat "$RUNNER_TEMP/okra-kernel/kernel.build"
+          echo "== the kernel reports itself as"
+          strings "$RUNNER_TEMP/okra-kernel/vmlinux" | grep -m2 'Linux version' || true
+          echo "== file type"
+          file "$RUNNER_TEMP/okra-kernel/vmlinux" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: okra-kernel
+          path: ${{ runner.temp }}/okra-kernel/**
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Publish the kernel
+        if: ${{ github.event.inputs.publish == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          Tag="${{ github.event.inputs.tag }}"
+          gh release upload "$Tag" \
+            "$RUNNER_TEMP/okra-kernel/vmlinux" \
+            "$RUNNER_TEMP/okra-kernel/System.map" \
+            "$RUNNER_TEMP/okra-kernel/kernel.config" \
+            "$RUNNER_TEMP/okra-kernel/kernel.build" --clobber
+          if [ -f "$RUNNER_TEMP/okra-kernel/bzImage" ]; then
+            gh release upload "$Tag" "$RUNNER_TEMP/okra-kernel/bzImage" --clobber
+          fi
+          echo "== release contents"
+          gh release view "$Tag" --json assets --jq '.assets | length'

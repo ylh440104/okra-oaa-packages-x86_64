@@ -1,0 +1,156 @@
+name: Publish the Okra userland
+
+# Publishes the result of a Bootstrap self-hosting toolchain run: the 70
+# self-hosted packages and the rootfs they make up.
+#
+# These are the self-hosted packages: compiled with the x86_64-okra-linux-gnu
+# cross toolchain and linked against the Okra glibc, so they actually run on an
+# Okra system. That is what separates them from the archives in the packages
+# release, which are compiled by the runner's own compiler and therefore link
+# against the runner's glibc.
+#
+# The rootfs tarball is what makes the kernel build independent: it is the
+# assembled userland, so build-kernel.yml only has to download it instead of
+# re-running the half hour toolchain and the hour long bootstrap.
+#
+# Nothing is rebuilt here.
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Bootstrap run id to publish (empty uses the newest run that still has archives)'
+        required: false
+        default: ''
+      tag:
+        description: 'Release tag to upload to'
+        required: false
+        default: 'okra-userland'
+
+permissions:
+  contents: write
+  actions: read
+
+env:
+  OKRA_TOOLCHAIN: /opt/okra-toolchain
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Work out which run to publish
+        id: source
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          RunId="${{ github.event.inputs.run_id }}"
+          if [ -z "$RunId" ]; then
+            # // empty keeps a missing artifact from turning into the literal
+            # string "null", which would pass the check below and then be used
+            # as a run id.
+            RunId="$(gh api \
+              "repos/${{ github.repository }}/actions/artifacts?name=okra-bootstrapped-packages&per_page=100" \
+              --jq '[.artifacts[] | select(.expired == false)] | sort_by(.created_at) | reverse | .[0].workflow_run.id // empty')"
+          fi
+          test -n "$RunId" || { echo "no bootstrap run with archives was found" >&2; exit 1; }
+          echo "run_id=$RunId" >> "$GITHUB_OUTPUT"
+          echo "publishing the userland of run $RunId"
+
+      - name: Restore the cross toolchain
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: ./scripts/restore-toolchain.sh
+
+      - name: Download the bootstrapped packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: okra-bootstrapped-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/okra-bootstrapped
+          run-id: ${{ steps.source.outputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check the archives are bootstrapped x86_64 packages
+        run: |
+          set -euo pipefail
+          mapfile -t Archives < <(find "$RUNNER_TEMP/okra-bootstrapped" -name '*.oaa' | sort)
+          echo "found ${#Archives[@]} archives"
+          test "${#Archives[@]}" -gt 0 || { echo "no archives in that run" >&2; exit 1; }
+          Stray="$(printf '%s\n' "${Archives[@]}" | grep -v '\.x86_64\.bootstrapped\.oaa$' || true)"
+          test -z "$Stray" || {
+            echo "these archives are not bootstrapped x86_64 packages:" >&2
+            echo "$Stray" >&2
+            exit 1
+          }
+          echo "every archive is an x86_64 bootstrapped package"
+
+      - name: Build the userland tree
+        run: |
+          set -euo pipefail
+          # The toolchain sysroot already holds glibc plus every package the
+          # bootstrap installed, so it is copied as the base and then checked.
+          sudo mkdir -p "$RUNNER_TEMP/okra-rootfs"
+          sudo chown "$(id -u):$(id -g)" "$RUNNER_TEMP/okra-rootfs"
+          cp -a --remove-destination "$OKRA_TOOLCHAIN/okra-sysroot/." "$RUNNER_TEMP/okra-rootfs"/
+          ./scripts/assemble-rootfs.sh "$RUNNER_TEMP/okra-rootfs"
+
+      - name: Prove the userland runs on its own
+        run: |
+          set -euo pipefail
+          Loader="$RUNNER_TEMP/okra-rootfs/lib64/ld-linux-x86-64.so.2"
+          LibraryPath="$RUNNER_TEMP/okra-rootfs/usr/lib:$RUNNER_TEMP/okra-rootfs/lib64:$RUNNER_TEMP/okra-rootfs/lib"
+          echo "== Okra uname"
+          "$Loader" --library-path "$LibraryPath" "$RUNNER_TEMP/okra-rootfs/usr/bin/uname" -a
+          echo "== Okra bash"
+          "$Loader" --library-path "$LibraryPath" "$RUNNER_TEMP/okra-rootfs/usr/bin/bash" \
+            -c 'echo "bash $BASH_VERSION on $(uname -m)"'
+          echo "== Okra gcc"
+          "$Loader" --library-path "$LibraryPath" "$RUNNER_TEMP/okra-rootfs/usr/bin/gcc" --version | head -1
+
+      - name: Pack the userland
+        run: |
+          set -euo pipefail
+          Archive="$RUNNER_TEMP/okra-rootfs.tar.zst"
+          tar --zstd -cf "$Archive" -C "$RUNNER_TEMP" okra-rootfs
+          sha256sum "$Archive" | tee "$Archive.sha256"
+          ls -la "$Archive"
+
+      - name: Ensure the release exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          Tag="${{ github.event.inputs.tag }}"
+          gh release view "$Tag" >/dev/null 2>&1 || gh release create "$Tag" \
+            --title "$Tag" \
+            --notes "OkraLinux x86_64 userland rebuilt from source with the self-hosting x86_64-okra-linux-gnu cross toolchain and linked against the Okra glibc (OAABI 1). Contains the 70 self-hosted packages and the assembled rootfs they make up."
+
+      - name: Upload the userland and the packages
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          Tag="${{ github.event.inputs.tag }}"
+          gh release upload "$Tag" \
+            "$RUNNER_TEMP/okra-rootfs.tar.zst" \
+            "$RUNNER_TEMP/okra-rootfs.tar.zst.sha256" --clobber
+          mapfile -t Files < <(find "$RUNNER_TEMP/okra-bootstrapped" -type f \
+            \( -name '*.oaa' -o -name '*.sha256' -o -name '*.build' -o -name '*.sources' \) | sort)
+          echo "uploading ${#Files[@]} package files"
+          # Upload in batches: one gh invocation carrying every path can hit the
+          # command line limit once the metadata files are included.
+          Batch=100
+          for ((Index = 0; Index < ${#Files[@]}; Index += Batch)); do
+            gh release upload "$Tag" "${Files[@]:Index:Batch}" --clobber
+            Uploaded=$((Index + Batch))
+            [ "$Uploaded" -lt "${#Files[@]}" ] || Uploaded="${#Files[@]}"
+            echo "uploaded $Uploaded/${#Files[@]}"
+          done
+          echo "== release contents"
+          gh release view "$Tag" --json assets --jq '.assets | length'
