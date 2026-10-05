@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/less/less-668.tar.gz
 source_sha256: 2819f55564d86d542abbecafd82ff61e819a3eec967faa36cd3e68f1596a44b8
 artifact: less-668-1.x86_64.oaa
-artifact_sha256: 4c6841cb83c8bc28035f933b4273f83dcc2b846c4d75f1f1a4289ccceb9a2fd2
+artifact_sha256: 9c5e967f0f3e312745bc0304019b27f080e5589635e16e253629ce5c18eefde0

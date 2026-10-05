@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/bc/bc-1.07.1.tar.gz
 source_sha256: 62adfca89b0a1c0164c2cdca59ca210c1d44c3ffc46daf9931cf4942664cb02a
 artifact: bc-1.07.1-1.x86_64.oaa
-artifact_sha256: f38b259f984b5dd1c85d50dbab5319d96795a792f52da7d4d9c9d45e9a7fdf7c
+artifact_sha256: 4283665a09fb0c0bc5fac33a3e7e04d6a43b1c0203b38b82187a3fc311bd0c3e

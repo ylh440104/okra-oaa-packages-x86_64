@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/sed/sed-4.9.tar.xz
 source_sha256: 6e226b732e1cd739464ad6862bd1a1aba42d7982922da7a53519631d24975181
 artifact: sed-4.9-1.x86_64.oaa
-artifact_sha256: cf31916771a5cea61112e9fee0b8679c63b22d599a1feb73e5a6f8d9780655e5
+artifact_sha256: d0221c59571eb44db6f6feae37bc28452f833aae399c3185919bb2d073cd4492

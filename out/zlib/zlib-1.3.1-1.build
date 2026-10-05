@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://zlib.net/fossils/zlib-1.3.1.tar.gz
 source_sha256: 9a93b2b7dfdac77ceba5a558a580e74667dd6fede4585b91eefb60f03b72df23
 artifact: zlib-1.3.1-1.x86_64.oaa
-artifact_sha256: b8c4c30965c65ab6e9b062503543da98759720b3c4d1732fb9b5bc8ed39e281a
+artifact_sha256: 84277a2c513116f01790a90596bd48034d6236fabf7b21f9df1b1ca997b453e8

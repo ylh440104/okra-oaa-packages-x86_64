@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.edge.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v1.47.2/e2fsprogs-1.47.2.tar.xz
 source_sha256: 08242e64ca0e8194d9c1caad49762b19209a06318199b63ce74ae4ef2d74e63c
 artifact: e2fsprogs-1.47.2-1.x86_64.oaa
-artifact_sha256: 0ad2255428909fa07fb16a882e3cd2f8a8aa2ea1ccb4aa5f69017bb5986e58ab
+artifact_sha256: 66829fbb1ed768066c4c18a2a04e758ea77525d32c3cd3c352bf16fef6c13013

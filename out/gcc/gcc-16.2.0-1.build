@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/gcc/gcc-16.2.0/gcc-16.2.0.tar.xz
 source_sha256: e6738e29597f733270731aa90600f37ffdc045079dfc27ec7e8192cc81085c3e
 artifact: gcc-16.2.0-1.x86_64.oaa
-artifact_sha256: cb3fe80aff1d9614a83eec057b72f9b1be0f0b1b84f95392302a036918cdf2ea
+artifact_sha256: d564328965c872dc24ff3e2f5af62d79930529d015fef3ffe7d92dfea7dee04b
