@@ -80,14 +80,27 @@ rm -rf "$RootfsDirectory/usr/src/kernel"
 mkdir -p "$RootfsDirectory/usr/src"
 cp -a "$KernelSource" "$RootfsDirectory/usr/src/kernel"
 
-echo "== fetching elfutils so objtool can be self-hosted"
-ElfutilsUrl="https://sourceware.org/elfutils/ftp/$ElfutilsVersion/elfutils-$ElfutilsVersion.tar.bz2"
-if curl -fsSL --retry 3 -m 300 -o "$Scratch/elfutils.tar.bz2" "$ElfutilsUrl"; then
-	cp -f "$Scratch/elfutils.tar.bz2" "$RootfsDirectory/usr/src/elfutils.tar.bz2"
-	echo "== elfutils $ElfutilsVersion is available for the userland"
-else
-	echo "== elfutils could not be fetched; objtool will be switched off" >&2
-fi
+echo "== fetching the sources the userland is missing"
+# The bootstrapped packages borrowed three libraries from the runner while they
+# were built, so the userland has no copy of them and the kernel build trips
+# over the gap (perl, which generates lib/oid_registry_data.c, needs
+# libcrypt.so.1). They are fetched here and built inside the userland with the
+# bootstrapped compiler.
+FetchSource() {
+	local Name="$1" Url="$2"
+	if curl -fsSL --retry 3 -m 300 -o "$Scratch/$Name" "$Url"; then
+		cp -f "$Scratch/$Name" "$RootfsDirectory/usr/src/$Name"
+		echo "== $Name is available for the userland"
+	else
+		echo "== $Name could not be fetched" >&2
+	fi
+}
+FetchSource libxcrypt.tar.xz \
+	"https://github.com/besser82/libxcrypt/releases/download/v${OKRA_LIBCRYPT_VERSION:-4.4.36}/libxcrypt-${OKRA_LIBCRYPT_VERSION:-4.4.36}.tar.xz"
+FetchSource lz4.tar.gz \
+	"https://github.com/lz4/lz4/releases/download/v${OKRA_LZ4_VERSION:-1.10.0}/lz4-${OKRA_LZ4_VERSION:-1.10.0}.tar.gz"
+FetchSource elfutils.tar.bz2 \
+	"https://sourceware.org/elfutils/ftp/$ElfutilsVersion/elfutils-$ElfutilsVersion.tar.bz2"
 
 echo "== entering the Okra rootfs"
 for Point in dev dev/pts proc sys; do
@@ -115,6 +128,60 @@ gcc --version | head -1
 echo "== the userland"
 uname -m
 ldd --version 2>/dev/null | head -1 || true
+
+# BuildLibxcrypt() - provide libcrypt.so.1.
+#
+# glibc 2.28 moved crypt out to libxcrypt, and the packages that use crypt
+# (perl, shadow, sudo, util-linux) borrowed the runner's copy while they were
+# bootstrapped, so the userland has none. perl is what generates
+# lib/oid_registry_data.c during the kernel build, so this has to exist.
+# Return: 0 when libcrypt.so.1 is present.
+BuildLibxcrypt() {
+	[ -f /usr/src/libxcrypt.tar.xz ] || return 1
+	local SavedDirectory="$PWD"
+	echo "== building libxcrypt in the userland"
+	rm -rf /usr/src/libxcrypt
+	mkdir -p /usr/src/libxcrypt
+	if tar -xf /usr/src/libxcrypt.tar.xz -C /usr/src/libxcrypt --strip-components=1 &&
+		cd /usr/src/libxcrypt; then
+		# The static library is skipped: only the shared object is needed.
+		if ./configure --prefix=/usr --disable-static --disable-werror \
+			--enable-hashes=strong,glibc --enable-obsolete-api=glibc >/dev/null &&
+			make -j"${JOBS}" &&
+			make install; then
+			cd "$SavedDirectory" || return 1
+			echo "== libcrypt installed"
+			ls -la /usr/lib/libcrypt.so* 2>/dev/null || true
+			return 0
+		fi
+	fi
+	cd "$SavedDirectory" || return 1
+	echo "== libcrypt could not be built" >&2
+	return 1
+}
+
+# BuildLz4() - provide liblz4.so.1 for zstd.
+# Return: 0 when liblz4.so.1 is present.
+BuildLz4() {
+	[ -f /usr/src/lz4.tar.gz ] || return 1
+	local SavedDirectory="$PWD"
+	echo "== building lz4 in the userland"
+	rm -rf /usr/src/lz4
+	mkdir -p /usr/src/lz4
+	if tar -xf /usr/src/lz4.tar.gz -C /usr/src/lz4 --strip-components=1 &&
+		cd /usr/src/lz4; then
+		if make -j"${JOBS}" -C lib &&
+			make -C lib install PREFIX=/usr LIBDIR=/usr/lib; then
+			cd "$SavedDirectory" || return 1
+			echo "== liblz4 installed"
+			ls -la /usr/lib/liblz4.so* 2>/dev/null || true
+			return 0
+		fi
+	fi
+	cd "$SavedDirectory" || return 1
+	echo "== liblz4 could not be built" >&2
+	return 1
+}
 
 # BuildLibelf() - compile elfutils inside the userland.
 #
@@ -273,6 +340,28 @@ Build() {
 	make -j"${JOBS}" bzImage || return 1
 	return 0
 }
+
+# The missing libraries are built first, because the kernel build runs perl and
+# zstd, and both are broken without them. Each builder restores the working
+# directory on every path, so the kernel tree is entered once more afterwards.
+cd /usr/src/kernel || exit 1
+
+HasSoname() {
+	local Name="$1"
+	for Directory in /usr/lib /lib /lib64 /usr/lib64; do
+		[ -e "$Directory/$Name" ] && return 0
+	done
+	return 1
+}
+
+if ! HasSoname libcrypt.so.1; then
+	BuildLibxcrypt || echo "== libcrypt is still missing" >&2
+fi
+if ! HasSoname liblz4.so.1; then
+	BuildLz4 || echo "== liblz4 is still missing" >&2
+fi
+
+cd /usr/src/kernel || exit 1
 
 # The full configuration is the one worth having, so libelf is built for it.
 if ! HasLibelf; then
