@@ -56,6 +56,20 @@ OkraBuildTriple() {
 	esac
 }
 
+# OkraToolchainInputs() - print the files that define the cross toolchain.
+# @None. These are exactly the inputs that change what the toolchain is, so a
+# toolchain published by an older run may only be reused when none of them
+# changed. scripts/find-toolchain-run.sh compares them with git for that reason.
+# Return: 0. Prints one repository relative path per line.
+OkraToolchainInputs() {
+	printf '%s\n' \
+		scripts/build-cross-toolchain.sh \
+		scripts/lib.sh \
+		packages/glibc.conf \
+		packages/gcc.conf \
+		packages/binutils.conf
+}
+
 # OkraHardeningFlags() - print the default CFLAGS used for every package.
 # @None. Set OKRA_NO_FORMAT_HARDENING=1 to drop -Werror=format-security, which
 # upstream trees such as GCC's bundled libcpp do not build cleanly under.

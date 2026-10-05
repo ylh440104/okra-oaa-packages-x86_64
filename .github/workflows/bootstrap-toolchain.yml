@@ -1,12 +1,28 @@
 name: Bootstrap self-hosting toolchain (experimental)
 
 # This workflow is experimental and manual. It builds a self-hosting Okra
-# toolchain and then rebuilds every package with it.
+# toolchain and then rebuilds every package with it, which is what makes the
+# result self-hosted rather than host-built.
 #
-# The toolchain stage is cached: once it succeeds, the bootstrap stage
-# downloads the cached toolchain and skips the 30-minute rebuild. Push a
-# toolchain source change (lib.sh, build-cross-toolchain.sh, glibc/gcc/binutils
-# recipes) and the cache key changes automatically.
+# Why a cross toolchain: the Okra userland has to be linked against the Okra
+# glibc, not the host glibc. Pointing a host compiler at the Okra headers
+# produces objects whose headers and libraries disagree, which is why the
+# earlier host-native attempt failed with "C compiler cannot create
+# executables". scripts/build-cross-toolchain.sh therefore builds
+# x86_64-okra-linux-gnu with a sysroot of its own, and the packages are then
+# compiled by that cross compiler with --sysroot.
+#
+# Reuse: the toolchain takes about half an hour to build, so the toolchain job
+# publishes it as the okra-cross-toolchain artifact and every later run
+# downloads it again instead of rebuilding it. A published toolchain is only
+# reused when scripts/build-cross-toolchain.sh, scripts/lib.sh and the
+# glibc/gcc/binutils recipes are unchanged since the run that produced it, so
+# editing the toolchain always forces a rebuild. Set rebuild_toolchain to
+# force one anyway.
+#
+# Stages:
+#   toolchain  linux headers, cross binutils, gcc stage 1, glibc, gcc stage 2
+#   bootstrap  every recipe rebuilt with the cross compiler into the sysroot
 #
 # The supported package pipeline is build-packages.yml, which does not depend
 # on this workflow.
@@ -14,7 +30,7 @@ on:
   workflow_dispatch:
     inputs:
       rebuild_toolchain:
-        description: 'Rebuild the cross toolchain even if a cache hit exists'
+        description: 'Rebuild the cross toolchain even when a published one can be reused'
         type: boolean
         default: false
       packages:
@@ -24,6 +40,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 env:
   OKRA_TOOLCHAIN: /opt/okra-toolchain
@@ -35,89 +52,49 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     outputs:
-      cache-hit: ${{ steps.cache-toolchain.outputs.cache-hit }}
-      artifact-restored: ${{ steps.download-artifact.outputs.artifact-restored }}
+      reused: ${{ steps.reuse.outputs.reused }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Compute cache key
-        id: key
-        run: |
-          set -euo pipefail
-          Hash="$(cat scripts/build-cross-toolchain.sh scripts/lib.sh packages/glibc.conf packages/gcc.conf packages/binutils.conf | sha256sum | awk '{print $1}')"
-          echo "key=okra-cross-tc-${Hash}" >> "$GITHUB_OUTPUT"
-
-      - name: Restore the cross toolchain from cache
-        id: cache-toolchain
-        if: ${{ !github.event.inputs.rebuild_toolchain }}
-        uses: actions/cache@v4
         with:
-          path: ${{ env.OKRA_TOOLCHAIN }}
-          key: ${{ steps.key.outputs.key }}
+          # The reuse check compares the toolchain inputs of the commit that
+          # published the artifact with this one, so the history is needed.
+          fetch-depth: 0
 
-      - name: Try downloading the toolchain artifact from a previous run
-        id: download-artifact
-        if: steps.cache-toolchain.outputs.cache-hit != 'true' && !github.event.inputs.rebuild_toolchain
+      - name: Reuse a published cross toolchain when possible
+        id: reuse
+        if: ${{ github.event.inputs.rebuild_toolchain != 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          OKRA_TOOLCHAIN_PROBE: '1'
         run: |
-          set -euo pipefail
-          # Find the most recent successful toolchain run that has the
-          # okra-cross-toolchain artifact. This avoids rebuilding the 30
-          # minute cross toolchain when a cache miss happens but a previous
-          # run already produced it.
-          for RunId in $(curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H 'Accept: application/vnd.github+json' \
-            'https://api.github.com/repos/${{ github.repository }}/actions/runs?per_page=20' \
-            | python3 -c "
-          import json, sys
-          d = json.load(sys.stdin)
-          for r in d.get('workflow_runs', []):
-              if r.get('conclusion') == 'success' or r.get('conclusion') == 'failure':
-                  print(r['id'])
-          "); do
-            Artifact="$(curl -sS -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H 'Accept: application/vnd.github+json' \
-              "https://api.github.com/repos/${{ github.repository }}/actions/runs/$RunId/artifacts" \
-              | python3 -c "
-          import json, sys
-          d = json.load(sys.stdin)
-          for a in d.get('artifacts', []):
-              if a['name'] == 'okra-cross-toolchain':
-                  print(a['archive_download_url'])
-                  break
-          " || true)"
-            if [ -n "$Artifact" ]; then
-              echo "== found okra-cross-toolchain artifact in run $RunId"
-              curl -sSL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                -H 'Accept: application/vnd.github+json' \
-                -o /tmp/toolchain-artifact.zip "$Artifact"
-              sudo mkdir -p "$OKRA_TOOLCHAIN"
-              sudo chown "$(id -u):$(id -g)" "$OKRA_TOOLCHAIN"
-              cd "$OKRA_TOOLCHAIN" && unzip -qo /tmp/toolchain-artifact.zip
-              rm -f /tmp/toolchain-artifact.zip
-              if [ -x "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc" ]; then
-                echo "artifact-restored=true" >> "$GITHUB_OUTPUT"
-                echo "== toolchain restored from artifact in run $RunId"
-                exit 0
-              fi
-            fi
-          done
-          echo "artifact-restored=false" >> "$GITHUB_OUTPUT"
-          echo "== no usable toolchain artifact found"
+          set -uo pipefail
+          # Only probe here: the bootstrap job downloads the toolchain once.
+          # Downloading it in this job as well would transfer ~4 GB twice.
+          if ./scripts/restore-toolchain.sh; then
+            echo "reused=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "reused=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Assert the runner really is x86_64
-        if: steps.cache-toolchain.outputs.cache-hit != 'true' && steps.download-artifact.outputs.artifact-restored != 'true'
+        if: steps.reuse.outputs.reused != 'true'
         run: |
           set -euo pipefail
           echo "uname -m: $(uname -m)"
           echo "uname -a: $(uname -a)"
-          test "$(uname -m)" = "x86_64"
+          test "$(uname -m)" = "x86_64" || {
+            echo "this repository only produces x86_64 packages" >&2
+            exit 1
+          }
+          test "$OKRA_TARGET_ARCH" = "x86_64"
 
       - name: Run the architecture self tests
-        if: steps.cache-toolchain.outputs.cache-hit != 'true' && steps.download-artifact.outputs.artifact-restored != 'true'
+        if: steps.reuse.outputs.reused != 'true'
         run: ./scripts/selftest.sh
 
       - name: Install host build tools
-        if: steps.cache-toolchain.outputs.cache-hit != 'true' && steps.download-artifact.outputs.artifact-restored != 'true'
+        if: steps.reuse.outputs.reused != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
@@ -127,13 +104,13 @@ jobs:
           sudo chown "$(id -u):$(id -g)" "$OKRA_TOOLCHAIN"
 
       - name: Fetch the okrapm toolchain sources
-        if: steps.cache-toolchain.outputs.cache-hit != 'true' && steps.download-artifact.outputs.artifact-restored != 'true'
+        if: steps.reuse.outputs.reused != 'true'
         run: |
           git clone --depth 1 https://github.com/OkraLinux/okrapm.git okrapm
           chmod +x okrapm/oaatools/*
 
       - name: Build the cross toolchain
-        if: steps.cache-toolchain.outputs.cache-hit != 'true' && steps.download-artifact.outputs.artifact-restored != 'true'
+        if: steps.reuse.outputs.reused != 'true'
         run: ./scripts/build-cross-toolchain.sh
 
       - name: Show what the toolchain produced
@@ -145,12 +122,23 @@ jobs:
           "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc" -dumpmachine
           "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc" --version | head -1
 
-      - name: Save the cross toolchain to cache
-        if: steps.cache-toolchain.outputs.cache-hit != 'true' && steps.download-artifact.outputs.artifact-restored != 'true'
-        uses: actions/cache/save@v4
+      - name: Package the toolchain for the next job
+        if: steps.reuse.outputs.reused != 'true'
+        run: |
+          set -euo pipefail
+          Archive="$RUNNER_TEMP/okra-cross-toolchain.tar.zst"
+          tar --zstd -cf "$Archive" -C "$(dirname "$OKRA_TOOLCHAIN")" "$(basename "$OKRA_TOOLCHAIN")"
+          sha256sum "$Archive" | tee "$RUNNER_TEMP/okra-cross-toolchain.tar.zst.sha256"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.reuse.outputs.reused != 'true'
         with:
-          path: ${{ env.OKRA_TOOLCHAIN }}
-          key: ${{ steps.key.outputs.key }}
+          name: okra-cross-toolchain
+          path: |
+            ${{ runner.temp }}/okra-cross-toolchain.tar.zst
+            ${{ runner.temp }}/okra-cross-toolchain.tar.zst.sha256
+          if-no-files-found: error
+          retention-days: 14
 
   bootstrap:
     needs: toolchain
@@ -158,31 +146,27 @@ jobs:
     timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
-
-      - name: Compute cache key (same as toolchain job)
-        id: key
-        run: |
-          set -euo pipefail
-          Hash="$(cat scripts/build-cross-toolchain.sh scripts/lib.sh packages/glibc.conf packages/gcc.conf packages/binutils.conf | sha256sum | awk '{print $1}')"
-          echo "key=okra-cross-tc-${Hash}" >> "$GITHUB_OUTPUT"
-
-      - name: Restore the cross toolchain from cache
-        uses: actions/cache@v4
         with:
-          path: ${{ env.OKRA_TOOLCHAIN }}
-          key: ${{ steps.key.outputs.key }}
+          fetch-depth: 0
+
+      - name: Restore the cross toolchain
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: ./scripts/restore-toolchain.sh
 
       - name: Assert the toolchain is present
         run: |
           set -euo pipefail
           test -x "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc" || {
-            echo "the cross toolchain cache was not restored" >&2
+            echo "the cross toolchain was not restored" >&2
             exit 1
           }
           test -f "$OKRA_TOOLCHAIN/okra-sysroot/lib64/ld-linux-x86-64.so.2" || {
             echo "the Okra dynamic loader is missing" >&2
             exit 1
           }
+          "$OKRA_TOOLCHAIN/cross/bin/x86_64-okra-linux-gnu-gcc" --version | head -1
 
       - name: Install host build tools
         run: |
@@ -241,7 +225,7 @@ jobs:
           print("names=" + " ".join(Order))
           print("count=" + str(len(Order)))
           PY
-          cat "$GITHUB_OUTPUT" | tail -2
+          tail -2 "$GITHUB_OUTPUT"
 
       - name: Rebuild every package with the cross toolchain
         run: |
@@ -249,17 +233,18 @@ jobs:
           mkdir -p "$RUNNER_TEMP/okra-artifacts"
           export OKRA_OAATOOLS="$PWD/okrapm/oaatools"
           echo "bootstrapping ${{ steps.order.outputs.count }} packages"
+          Failed=""
           for name in ${{ steps.order.outputs.names }}; do
             echo "== bootstrapping $name"
-            OKRA_PACKAGE_MODE=bootstrap ./scripts/build-package.sh "$name" || {
-              echo "!! $name failed; continuing to collect partial results" >&2
-              touch "$RUNNER_TEMP/okra-artifacts/bootstrap-failed"
-            }
+            if ! OKRA_PACKAGE_MODE=bootstrap ./scripts/build-package.sh "$name"; then
+              echo "!! $name failed to bootstrap" >&2
+              Failed="$Failed $name"
+            fi
           done
-          test ! -f "$RUNNER_TEMP/okra-artifacts/bootstrap-failed" || {
-            echo "one or more packages failed to bootstrap" >&2
+          if [ -n "$Failed" ]; then
+            echo "these packages failed to bootstrap:$Failed" >&2
             exit 1
-          }
+          fi
 
       - name: Verify the bootstrapped packages
         run: |

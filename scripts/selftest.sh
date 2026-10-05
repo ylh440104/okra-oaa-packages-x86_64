@@ -83,6 +83,63 @@ else
 	OKRA_CROSS_COMPILE=1 ExpectSuccess "cross compile override accepted" RequireTargetHost
 fi
 
+echo "== toolchain reuse"
+# The list of toolchain inputs decides whether a published toolchain may be
+# reused. It must not be empty, must name the toolchain script, and must not
+# accidentally include the workflow itself (which changes far more often).
+Inputs="$(OkraToolchainInputs)"
+[ -n "$Inputs" ] || { echo "FAIL toolchain inputs are empty"; Failures=$((Failures + 1)); }
+case "$Inputs" in
+	*scripts/build-cross-toolchain.sh*) echo "ok   toolchain inputs name the toolchain script" ;;
+	*) echo "FAIL toolchain inputs omit the toolchain script"; Failures=$((Failures + 1)) ;;
+esac
+case "$Inputs" in
+	*.github/workflows/*) echo "FAIL toolchain inputs include the workflow"; Failures=$((Failures + 1)) ;;
+	*) echo "ok   toolchain inputs exclude the workflow" ;;
+esac
+while IFS= read -r Input; do
+	[ -n "$Input" ] || continue
+	if [ -f "$RepositoryRoot/$Input" ]; then
+		echo "ok   toolchain input exists: $Input"
+	else
+		echo "FAIL toolchain input is missing: $Input"
+		Failures=$((Failures + 1))
+	fi
+done <<< "$Inputs"
+
+# The reuse decision is a plain git comparison, so it can be exercised offline.
+if command -v git >/dev/null 2>&1; then
+	ReuseRepo="$Scratch/reuse"
+	mkdir -p "$ReuseRepo/scripts" "$ReuseRepo/packages"
+	git -C "$ReuseRepo" init -q
+	git -C "$ReuseRepo" config user.email selftest@example.com
+	git -C "$ReuseRepo" config user.name selftest
+	printf 'one\n' > "$ReuseRepo/scripts/build-cross-toolchain.sh"
+	printf 'x\n' > "$ReuseRepo/packages/glibc.conf"
+	git -C "$ReuseRepo" add -A
+	git -C "$ReuseRepo" commit -qm first
+	First="$(git -C "$ReuseRepo" rev-parse HEAD)"
+	printf 'two\n' > "$ReuseRepo/scripts/build-cross-toolchain.sh"
+	git -C "$ReuseRepo" commit -qam second
+	Second="$(git -C "$ReuseRepo" rev-parse HEAD)"
+	if git -C "$ReuseRepo" diff --quiet "$First" "$Second" -- scripts/build-cross-toolchain.sh packages/glibc.conf; then
+		echo "FAIL a changed toolchain input was not detected"
+		Failures=$((Failures + 1))
+	else
+		echo "ok   a changed toolchain input invalidates the published toolchain"
+	fi
+	printf 'x\n' > "$ReuseRepo/packages/gcc.conf"
+	git -C "$ReuseRepo" add -A
+	git -C "$ReuseRepo" commit -qm unrelated
+	Unrelated="$(git -C "$ReuseRepo" rev-parse HEAD)"
+	if git -C "$ReuseRepo" diff --quiet "$Second" "$Unrelated" -- scripts/build-cross-toolchain.sh packages/glibc.conf; then
+		echo "ok   an unrelated commit keeps the published toolchain valid"
+	else
+		echo "FAIL an unrelated commit invalidated the published toolchain"
+		Failures=$((Failures + 1))
+	fi
+fi
+
 echo
 if [ "$Failures" -eq 0 ]; then
 	echo "all checks passed"
