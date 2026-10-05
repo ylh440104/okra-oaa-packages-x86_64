@@ -92,7 +92,10 @@ if [ "${OKRA_PACKAGE_MODE:-package}" = "toolchain" ]; then
 	ToolchainRoot="${OKRA_TOOLCHAIN:-/opt/okra-toolchain}"
 	echo "== installing build products into $ToolchainRoot"
 	mkdir -p "$ToolchainRoot"
-	cp -a "$InstallRoot"/. "$ToolchainRoot"/
+	# --remove-destination unlinks what is in the way instead of writing
+	# through it: an existing symlink would otherwise send the copy to
+	# wherever it points, which may be outside the destination entirely.
+	cp -a --remove-destination "$InstallRoot"/. "$ToolchainRoot"/
 	echo "== $Name installed into $ToolchainRoot"
 	exit 0
 fi
@@ -195,10 +198,15 @@ echo "== packing with $OaaToolsDirectory/oaa-build"
 if [ "${OKRA_PACKAGE_MODE:-package}" = "bootstrap" ]; then
 	# The bootstrapped payload also becomes part of the Okra sysroot, so later
 	# packages in the same run can compile and link against it.
+	#
+	# --remove-destination matters here: recipes such as e2fsprogs and
+	# util-linux both ship libuuid.a, and once one of them has installed a
+	# symlink, a plain cp -a would follow it and fail with EACCES instead of
+	# replacing the entry.
 	SysrootPath="${OKRA_SYSROOT:-${OKRA_TOOLCHAIN:-/opt/okra-toolchain}/okra-sysroot}"
 	echo "== installing build products into $SysrootPath"
 	mkdir -p "$SysrootPath"
-	cp -a "$InstallRoot"/. "$SysrootPath"/
+	cp -a --remove-destination "$InstallRoot"/. "$SysrootPath"/
 fi
 
 MetadataOutput="$OutputDirectory/$Name"
