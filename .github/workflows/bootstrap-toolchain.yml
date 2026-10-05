@@ -114,6 +114,7 @@ jobs:
         run: ./scripts/build-cross-toolchain.sh
 
       - name: Show what the toolchain produced
+        if: steps.reuse.outputs.reused != 'true'
         run: |
           set -euo pipefail
           echo "== cross prefix"
