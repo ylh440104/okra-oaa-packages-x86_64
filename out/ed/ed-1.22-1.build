@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/ed/ed-1.22.tar.lz
 source_sha256: 7eb22c30a99dcdb50a8630ef7ff3e4642491ac4f8cd1aa9f3182264df4f4ad08
 artifact: ed-1.22-1.x86_64.oaa
-artifact_sha256: 4e052347a58bf4d909187cff660a7889a80fb552f15ae13f40ccb82746e5debe
+artifact_sha256: 6539fe3882ad803f8fa0d393a31923c33d171baa1f5f7a6602fbd5668855c094

@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/texinfo/texinfo-7.2.tar.xz
 source_sha256: 0329d7788fbef113fa82cb80889ca197a344ce0df7646fe000974c5d714363a6
 artifact: texinfo-7.2-1.x86_64.oaa
-artifact_sha256: 0ea9cfd477f05c45a8fe54dc3398fcbf6a741051b8f5c7e6340de668186d244b
+artifact_sha256: e97a6aa607e882ffd0277b4f76cefc7fa4c684c756eaf00a691dbbba1293130a

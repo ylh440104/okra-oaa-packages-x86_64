@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/findutils/findutils-4.10.0.tar.xz
 source_sha256: 1387e0b67ff247d2abde998f90dfbf70c1491391a59ddfecb8ae698789f0a4f5
 artifact: findutils-4.10.0-1.x86_64.oaa
-artifact_sha256: 998410532cbf935715aa43cc8d17a9bae3bf0ba60691625da3cb1093ad5956ea
+artifact_sha256: c2853688f09701ad4ff8cec93a1e8bd5030b280c9bd54973a30b538034db953b

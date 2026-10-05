@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://data.iana.org/time-zones/releases/tzdata2025a.tar.gz
 source_sha256: 4d5fcbc72c7c450ebfe0b659bd0f1c02fbf52fd7f517a9ea13fe71c21eb5f0d0
 artifact: tzdata-2025a-1.x86_64.oaa
-artifact_sha256: 4863c5c0fd3fb7f7efd364c44f65133d022d6b906d99e270d4d16412c6566193
+artifact_sha256: 7cedc84eea69c6a6ba48de9b2c3bf964502341b6a181d7d66765bbfe4a2a8ad7

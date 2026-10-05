@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/cpio/cpio-2.15.tar.bz2
 source_sha256: 937610b97c329a1ec9268553fb780037bcfff0dcffe9725ebc4fd9c1aa9075db
 artifact: cpio-2.15-1.x86_64.oaa
-artifact_sha256: 29f36b801b74092cc16916cca39a6834e1ae54084a707f9eb33e6e628d92db8e
+artifact_sha256: 64a27c308ec34579bf34d9b7fa236cc33279b167b093eac8a59ed484de7860f2

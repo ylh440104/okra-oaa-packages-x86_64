@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://downloads.sourceforge.net/project/libtirpc/libtirpc/1.3.6/libtirpc-1.3.6.tar.bz2
 source_sha256: bbd26a8f0df5690a62a47f6aa30f797f3ef8d02560d1bc449a83066b5a1d3508
 artifact: libtirpc-1.3.6-1.x86_64.oaa
-artifact_sha256: e6d0456f6334b2546c8e7eb226f5e80de79e040b5e51f228256c2d9f74f016bf
+artifact_sha256: 80f6d310e329c315ec7e4a8b29d8639b25dcdfa6049dd8d73331c25587d7cd61
