@@ -373,6 +373,47 @@ if ! HasLibelf; then
 	cd /usr/src/kernel || exit 1
 fi
 
+# AuditTools() - report every library the build tools cannot resolve.
+#
+# The bootstrap let some packages link against libraries that only existed on
+# the runner, so the userland has gaps. This lists all of them at once, before
+# the long build, instead of discovering one gap per forty minute run.
+# Return: 0 when the tools the kernel build depends on are all resolvable.
+AuditTools() {
+	local Missing=0 Tool Gaps
+	echo "== auditing the build tools"
+	for Tool in /usr/bin/perl /usr/bin/zstd /usr/bin/python3 /usr/bin/gcc \
+		/usr/bin/make /usr/bin/bash /usr/bin/gawk /usr/bin/sed /usr/bin/ld \
+		/usr/bin/tar /usr/bin/xz /usr/bin/gzip /usr/bin/bison /usr/bin/flex \
+		/usr/bin/pkgconf /usr/bin/objdump /usr/bin/ar /usr/bin/nm; do
+		[ -x "$Tool" ] || continue
+		Gaps="$(ldd "$Tool" 2>/dev/null | awk '/not found/ {print $1}' | sort -u | tr '\n' ' ')"
+		if [ -n "$Gaps" ]; then
+			echo "!! $(basename "$Tool") cannot find: $Gaps"
+			Missing=$((Missing + 1))
+		fi
+	done
+	if [ "$Missing" -eq 0 ]; then
+		echo "== every build tool resolves its libraries"
+		return 0
+	fi
+	echo "== $Missing build tools have unresolved libraries" >&2
+	# perl generates lib/oid_registry_data.c and zstd compresses the image, so a
+	# gap in either of them is fatal whatever the configuration is.
+	local Fatal=0
+	for Tool in /usr/bin/perl /usr/bin/zstd; do
+		[ -x "$Tool" ] || continue
+		Gaps="$(ldd "$Tool" 2>/dev/null | awk '/not found/ {print $1}')"
+		if [ -n "$Gaps" ]; then
+			echo "!! $(basename "$Tool") is required by the build and is broken: $Gaps" >&2
+			Fatal=1
+		fi
+	done
+	return "$Fatal"
+}
+
+AuditTools || exit 1
+
 if Build ConfigureFull; then
 	echo "== the kernel built with objtool"
 elif Build ConfigureNoObjtool; then
