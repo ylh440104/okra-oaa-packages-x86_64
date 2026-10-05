@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/ncurses/ncurses-6.5.tar.gz
 source_sha256: 136d91bc269a9a5785e5f9e980bc76ab57428f604ce3e5a5a90cebc767971cc6
 artifact: ncurses-6.5-1.x86_64.oaa
-artifact_sha256: a1987a34097682da8fd6b53a9bfb66fdaa65b13ad0b9ae7d8b62e05b40fdf88d
+artifact_sha256: d48b827ce27cf2b9ccf01b327081a48a18cc393da1daddc7dfbebb2098c9798a

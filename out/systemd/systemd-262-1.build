@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/systemd/systemd/archive/refs/tags/v262.tar.gz
 source_sha256: 6aa77506c0644aa67f940a48e3d3a7368601f787e4f249139516d353f107bcab
 artifact: systemd-262-1.x86_64.oaa
-artifact_sha256: f600246a8d748421ea9e3cd35738ba4951537da40c7297d39e98766ec5e66385
+artifact_sha256: 0cb6c2d7ae6b418b460820e418e3642b7ba602328446b50255d8577c0a86b8f7

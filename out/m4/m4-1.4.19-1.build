@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/m4/m4-1.4.19.tar.xz
 source_sha256: 63aede5c6d33b6d9b13511cd0be2cac046f2e70fd0a07aa9573a04a82783af96
 artifact: m4-1.4.19-1.x86_64.oaa
-artifact_sha256: 6926aa2359449b06e7953e856eafd62c9ac1b4eedfd0b65283eb637225a2a41d
+artifact_sha256: 5b45aef5c0eb8319bba8e25425fda443258be1112abe2f76f0f4e5a6dba38e24

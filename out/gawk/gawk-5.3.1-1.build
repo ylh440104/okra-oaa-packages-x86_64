@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/gawk/gawk-5.3.1.tar.xz
 source_sha256: 694db764812a6236423d4ff40ceb7b6c4c441301b72ad502bb5c27e00cd56f78
 artifact: gawk-5.3.1-1.x86_64.oaa
-artifact_sha256: 8fd33743e439209cfa683797736abe39c0372db14718b104ad86f54ac17738aa
+artifact_sha256: dc3815a3b31b90dec6fd6bfcb14dae2cb7d0b4ff0751c78f23154bb4984ea29c

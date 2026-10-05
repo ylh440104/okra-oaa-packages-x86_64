@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.edge.kernel.org/pub/linux/utils/net/iproute2/iproute2-6.12.0.tar.xz
 source_sha256: bbd141ef7b5d0127cc2152843ba61f274dc32814fa3e0f13e7d07a080bef53d9
 artifact: iproute2-6.12.0-1.x86_64.oaa
-artifact_sha256: 69cb9e46328b9e07354709061c909e32d6f6757b246565794931ed481210f460
+artifact_sha256: aafba52f6ba30017d7036f7b0fe463eb9bcc42492d97d23663fd25f2d75e9f0a
