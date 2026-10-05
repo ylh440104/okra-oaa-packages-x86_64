@@ -129,10 +129,29 @@ BuildLibelf() {
 	mkdir -p /usr/src/elfutils
 	tar -xf /usr/src/elfutils.tar.bz2 -C /usr/src/elfutils --strip-components=1 || return 1
 	cd /usr/src/elfutils || return 1
+	# This tree promotes warnings to errors and the bootstrapped gcc is newer
+	# than the one elfutils 0.192 was tested with, so -Wno-error is passed.
+	export CFLAGS="-O2 -Wno-error"
+	export CXXFLAGS="$CFLAGS"
 	./configure --prefix=/usr --disable-debuginfod --disable-libdebuginfod \
 		--disable-nls --without-zstd --without-bzlib --without-lzma || return 1
-	make -j"${JOBS}" || return 1
-	make install || return 1
+	# Only libelf is needed, because objtool links -lelf. Building the whole
+	# tree would also compile libdw, libasm, the command line tools and a
+	# disassembler backend per architecture, none of which this build uses.
+	# libeu comes first because elfutils' own build order puts it there.
+	LibelfBuilt=1
+	make -C lib -j"${JOBS}" || LibelfBuilt=0
+	if [ "$LibelfBuilt" = "1" ]; then
+		make -C libelf -j"${JOBS}" || LibelfBuilt=0
+	fi
+	if [ "$LibelfBuilt" != "1" ]; then
+		echo "== building libelf alone failed; building the whole tree" >&2
+		make -j"${JOBS}" || return 1
+		make install || return 1
+		cd /usr/src/kernel || return 1
+		return 0
+	fi
+	make -C libelf install || return 1
 	cd /usr/src/kernel || return 1
 	# The linker has to find it without a ldconfig run.
 	if [ ! -e /usr/lib/libelf.so ]; then
@@ -141,7 +160,7 @@ BuildLibelf() {
 		[ -n "$Soname" ] && ln -sfn "$Soname" /usr/lib/libelf.so
 	fi
 	echo "== libelf installed"
-	ls -la /usr/lib/libelf.so* 2>/dev/null || true
+	ls -la /usr/lib/libelf.so* /usr/include/gelf.h 2>/dev/null || true
 	return 0
 }
 
