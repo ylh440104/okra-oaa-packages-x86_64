@@ -89,6 +89,26 @@ for Link in cc:gcc c++:g++ pkg-config:pkgconf; do
 	done
 done
 
+# The loader searches the directory libc.so.6 lives in, so anything the runtime
+# dlopen()s has to be reachable from there. libgcc_s.so.1 is what glibc needs
+# for pthread cancellation and unwinding, and the gcc package installs it under
+# /usr/lib64 only, so the kernel build aborted with
+#
+#   libgcc_s.so.1 must be installed for pthread_exit to work
+#
+# while linking vmlinux. The link is placed next to libc.so.6.
+for Directory in usr/lib lib lib64 usr/lib64; do
+	[ -e "$RootfsDirectory/$Directory/libc.so.6" ] || continue
+	for Library in libgcc_s.so.1 libgcc_s.so; do
+		[ -e "$RootfsDirectory/$Directory/$Library" ] && continue
+		Found="$(find "$RootfsDirectory" -maxdepth 4 -name "$Library" -print -quit 2>/dev/null || true)"
+		if [ -n "$Found" ]; then
+			ln -sfn "${Found#"$RootfsDirectory"}" "$RootfsDirectory/$Directory/$Library"
+			echo "ok   $Directory/$Library -> ${Found#"$RootfsDirectory"}"
+		fi
+	done
+done
+
 echo "== writing the account and resolver files"
 cat > "$RootfsDirectory/etc/passwd" <<'EOF'
 root:x:0:0:root:/root:/bin/bash
