@@ -133,11 +133,14 @@ BuildLibelf() {
 	# than the one elfutils 0.192 was tested with, so -Wno-error is passed.
 	export CFLAGS="-O2 -Wno-error"
 	export CXXFLAGS="$CFLAGS"
-	./configure --prefix=/usr --disable-debuginfod --disable-libdebuginfod \
-		--disable-nls --without-zstd --without-bzlib --without-lzma || return 1
+	./configure --prefix=/usr --disable-werror --disable-debuginfod \
+		--disable-libdebuginfod --disable-nls --without-zstd --without-bzlib \
+		--without-lzma || return 1
 	# Only libelf is needed, because objtool links -lelf. Building the whole
 	# tree would also compile libdw, libasm, the command line tools and a
-	# disassembler backend per architecture, none of which this build uses.
+	# disassembler backend per architecture. libcpu is one of those and its
+	# riscv_disasm.c does not compile under -Werror with this compiler, which
+	# is what made the whole-tree build fail.
 	# libeu comes first because elfutils' own build order puts it there.
 	LibelfBuilt=1
 	make -C lib -j"${JOBS}" || LibelfBuilt=0
@@ -145,13 +148,22 @@ BuildLibelf() {
 		make -C libelf -j"${JOBS}" || LibelfBuilt=0
 	fi
 	if [ "$LibelfBuilt" != "1" ]; then
-		echo "== building libelf alone failed; building the whole tree" >&2
-		make -j"${JOBS}" || return 1
-		make install || return 1
+		echo "== libelf could not be built" >&2
 		cd /usr/src/kernel || return 1
-		return 0
+		return 1
 	fi
-	make -C libelf install || return 1
+	make -C libelf install || {
+		cd /usr/src/kernel || return 1
+		return 1
+	}
+	# Insurance: objtool only needs the headers and -lelf, so if the install
+	# did not place them, they are copied straight from the source tree.
+	for Header in libelf.h gelf.h nlist.h; do
+		if [ ! -f "/usr/include/$Header" ] && [ -f "/usr/src/elfutils/libelf/$Header" ]; then
+			echo "== installing $Header from the source tree"
+			install -m 0644 "/usr/src/elfutils/libelf/$Header" "/usr/include/$Header" || true
+		fi
+	done
 	cd /usr/src/kernel || return 1
 	# The linker has to find it without a ldconfig run.
 	if [ ! -e /usr/lib/libelf.so ]; then
@@ -264,7 +276,12 @@ Build() {
 
 # The full configuration is the one worth having, so libelf is built for it.
 if ! HasLibelf; then
-	BuildLibelf || echo "== elfutils could not be built; objtool will be switched off" >&2
+	BuildLibelf || echo "== libelf could not be built; objtool will be switched off" >&2
+	# BuildLibelf changes directory, so the kernel tree is entered again
+	# unconditionally. Without this a failed libelf build leaves the shell in
+	# the elfutils tree and every later make fails with
+	# "No rule to make target 'defconfig'".
+	cd /usr/src/kernel || exit 1
 fi
 
 if Build ConfigureFull; then
