@@ -71,6 +71,24 @@ if [ ! -e "$RootfsDirectory/bin/sh" ]; then
 	fi
 fi
 
+# The standard toolchain names are expected by build systems but no package
+# installs them, because they belong to a host system:
+#
+#   cc        gcc only ships /usr/bin/gcc, and makefiles say "cc"
+#   c++       same for the C++ driver
+#   pkg-config  pkgconf installs itself and pkg.m4 but not the pkg-config name,
+#               which is the name every configure script calls
+for Link in cc:gcc c++:g++ pkg-config:pkgconf; do
+	Name="${Link%%:*}"
+	Target="${Link##*:}"
+	for Directory in usr/bin bin; do
+		if [ -x "$RootfsDirectory/$Directory/$Target" ] && [ ! -e "$RootfsDirectory/$Directory/$Name" ]; then
+			ln -sfn "$Target" "$RootfsDirectory/$Directory/$Name"
+			echo "ok   $Directory/$Name -> $Target"
+		fi
+	done
+done
+
 echo "== writing the account and resolver files"
 cat > "$RootfsDirectory/etc/passwd" <<'EOF'
 root:x:0:0:root:/root:/bin/bash

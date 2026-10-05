@@ -129,7 +129,49 @@ echo "== the userland"
 uname -m
 ldd --version 2>/dev/null | head -1 || true
 
-# BuildLibxcrypt() - provide libcrypt.so.1.
+# InstallCryptStub() - give perl a libcrypt.so.1 to load.
+#
+# libxcrypt's configure needs perl, and perl needs libcrypt.so.1, so the real
+# library cannot be built until the tool that builds it can run. The only crypt
+# symbol libperl.so.5.40.0 imports is crypt_r@XCRYPT_2.0, so a stub exporting
+# exactly that versioned symbol is enough to let perl start. The real library
+# replaces the stub as soon as it is installed.
+# Return: 0 when the stub is in place.
+InstallCryptStub() {
+	local SavedDirectory="$PWD"
+	cd /usr/src || return 1
+	cat > crypt_stub.c <<'STUB'
+/* Stand-in for libcrypt.so.1 while libxcrypt is being built. */
+struct crypt_data;
+char *crypt_r(const char *key, const char *salt, struct crypt_data *data)
+{
+	(void)key;
+	(void)salt;
+	(void)data;
+	return 0;
+}
+STUB
+	cat > crypt_stub.map <<'MAP'
+XCRYPT_2.0 {
+	global:
+		crypt_r;
+	local:
+		*;
+};
+MAP
+	if gcc -shared -fPIC -Wl,-soname,libcrypt.so.1 \
+		-Wl,--version-script=crypt_stub.map \
+		-o /usr/lib/libcrypt.so.1 crypt_stub.c; then
+		cd "$SavedDirectory" || return 1
+		echo "== a libcrypt stub is in place so perl can run"
+		return 0
+	fi
+	cd "$SavedDirectory" || return 1
+	echo "== the libcrypt stub could not be built" >&2
+	return 1
+}
+
+# BuildLibxcrypt() - provide the real libcrypt.so.1.
 #
 # glibc 2.28 moved crypt out to libxcrypt, and the packages that use crypt
 # (perl, shadow, sudo, util-linux) borrowed the runner's copy while they were
@@ -139,20 +181,33 @@ ldd --version 2>/dev/null | head -1 || true
 BuildLibxcrypt() {
 	[ -f /usr/src/libxcrypt.tar.xz ] || return 1
 	local SavedDirectory="$PWD"
+
 	echo "== building libxcrypt in the userland"
+	# configure runs perl, which cannot start without libcrypt, so the stub
+	# bridges the gap.
+	if ! perl -e 'exit 0' >/dev/null 2>&1; then
+		InstallCryptStub || return 1
+	fi
+
 	rm -rf /usr/src/libxcrypt
 	mkdir -p /usr/src/libxcrypt
 	if tar -xf /usr/src/libxcrypt.tar.xz -C /usr/src/libxcrypt --strip-components=1 &&
 		cd /usr/src/libxcrypt; then
-		# The static library is skipped: only the shared object is needed.
+		# --enable-obsolete-api=glibc is what produces libcrypt.so.1 with the
+		# XCRYPT_2.0 version, which is the interface the bootstrapped packages
+		# were linked against.
 		if ./configure --prefix=/usr --disable-static --disable-werror \
 			--enable-hashes=strong,glibc --enable-obsolete-api=glibc >/dev/null &&
-			make -j"${JOBS}" &&
-			make install; then
-			cd "$SavedDirectory" || return 1
-			echo "== libcrypt installed"
-			ls -la /usr/lib/libcrypt.so* 2>/dev/null || true
-			return 0
+			make -j"${JOBS}"; then
+			# The stub has to go before the real library is installed, or the
+			# install of the libcrypt.so.1 symlink cannot replace it.
+			rm -f /usr/lib/libcrypt.so.1
+			if make install; then
+				cd "$SavedDirectory" || return 1
+				echo "== libcrypt installed"
+				ls -la /usr/lib/libcrypt.so* 2>/dev/null || true
+				return 0
+			fi
 		fi
 	fi
 	cd "$SavedDirectory" || return 1
