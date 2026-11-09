@@ -3,9 +3,9 @@ version: 668
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/less/less-668.tar.gz
 source_sha256: 2819f55564d86d542abbecafd82ff61e819a3eec967faa36cd3e68f1596a44b8
 artifact: less-668-1.x86_64.oaa
-artifact_sha256: 9c5e967f0f3e312745bc0304019b27f080e5589635e16e253629ce5c18eefde0
+artifact_sha256: ff44fb24f0bc1ed5978d9c997afd0bf7808aad63041ba9c37c40046fcd0a5f72

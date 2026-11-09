@@ -3,9 +3,9 @@ version: 2.3.0
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://distfiles.ariadne.space/pkgconf/pkgconf-2.3.0.tar.xz
 source_sha256: 3a9080ac51d03615e7c1910a0a2a8df08424892b5f13b0628a204d3fcce0ea8b
 artifact: pkgconf-2.3.0-1.x86_64.oaa
-artifact_sha256: 59b35de016bafd3e138ab162f4d7ee285a4bdd14ecbf305956213df7ecbcffcf
+artifact_sha256: 2bc35f252416a02c320a322ab65b7d765ca494749e414f4c74fb62b20d2d1fdf

@@ -3,9 +3,9 @@ version: 1.22
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/ed/ed-1.22.tar.lz
 source_sha256: 7eb22c30a99dcdb50a8630ef7ff3e4642491ac4f8cd1aa9f3182264df4f4ad08
 artifact: ed-1.22-1.x86_64.oaa
-artifact_sha256: 420836c20f8dd86a7024c37fd4f313bd6ce4b02455d9a60362f4cddb5e3a15fe
+artifact_sha256: 1b39565670c77cc1f7c29ad38bb7f84bfe53542e0061641f5802ce5ae75dae32

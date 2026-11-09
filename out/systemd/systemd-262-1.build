@@ -3,9 +3,9 @@ version: 262
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://github.com/systemd/systemd/archive/refs/tags/v262.tar.gz
 source_sha256: 6aa77506c0644aa67f940a48e3d3a7368601f787e4f249139516d353f107bcab
 artifact: systemd-262-1.x86_64.oaa
-artifact_sha256: fe6ff024990c94c22b3e9e5cb556b061730dca5d6760adc6f29879847ac80e11
+artifact_sha256: ba9c134332b644b464e824e928c843926ac5541b7ba4ddcbbfff3dac9c6eb396

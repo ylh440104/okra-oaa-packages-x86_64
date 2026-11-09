@@ -3,9 +3,9 @@ version: 2025-02-25
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://curl.se/ca/cacert-2025-02-25.pem
 source_sha256: 50a6277ec69113f00c5fd45f09e8b97a4b3e32daa35d3a95ab30137a55386cef
 artifact: ca-certificates-2025-02-25-1.x86_64.oaa
-artifact_sha256: 7661ce35eff948070f72f439332741fe7cd72670d59cd7c94d9309df9b11e295
+artifact_sha256: 911c74cb3f7a8987843c773664799d5ec8da1cde5ff96b193ab1a5269fb7293c

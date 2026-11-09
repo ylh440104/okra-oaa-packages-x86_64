@@ -3,9 +3,9 @@ version: 2.43
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/glibc/glibc-2.43.tar.xz
 source_sha256: d9c86c6b5dbddb43a3e08270c5844fc5177d19442cf5b8df4be7c07cd5fa3831
 artifact: glibc-2.43-1.x86_64.oaa
-artifact_sha256: 7c78768dcae3a3736a122368f0b3e8ed7b967f714c3a4ca7123b02f66e6e98a3
+artifact_sha256: 81bc5ea618d7513a8f6f120cc4a4cecc092e99a71f9a893eb54bbc9abca579a9

@@ -3,9 +3,9 @@ version: 3.10
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/diffutils/diffutils-3.10.tar.xz
 source_sha256: 90e5e93cc724e4ebe12ede80df1634063c7a855692685919bfe60b556c9bd09e
 artifact: diffutils-3.10-1.x86_64.oaa
-artifact_sha256: 6a6f95463fc77f8fe491c11ef6a35bbb6a0fdc288334fb4563ba0f934294e740
+artifact_sha256: 2be383a92864a8f0b97a1d50a66654fa9918c04f4af0a10fe99a6e1c96f6094c

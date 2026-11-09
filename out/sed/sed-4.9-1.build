@@ -3,9 +3,9 @@ version: 4.9
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/sed/sed-4.9.tar.xz
 source_sha256: 6e226b732e1cd739464ad6862bd1a1aba42d7982922da7a53519631d24975181
 artifact: sed-4.9-1.x86_64.oaa
-artifact_sha256: d0221c59571eb44db6f6feae37bc28452f833aae399c3185919bb2d073cd4492
+artifact_sha256: 02286bc8e2bc202b1d81032d184f093b648a5da405e71af6e1af46ce088b5312

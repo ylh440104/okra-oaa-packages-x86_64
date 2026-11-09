@@ -1,0 +1,11 @@
+package: app.linux-pam
+version: 1.6.1
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
+elf_machine: 62
+source: https://github.com/linux-pam/linux-pam/releases/download/v1.6.1/Linux-PAM-1.6.1.tar.xz
+source_sha256: f8923c740159052d719dbfc2a2f81942d68dd34fcaf61c706a02c9b80feeef8e
+artifact: linux-pam-1.6.1-1.x86_64.oaa
+artifact_sha256: e155a302446605250523d9d2e598520700be951ab16aa86e20e84b54ee53838e

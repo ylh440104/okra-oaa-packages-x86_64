@@ -3,9 +3,9 @@ version: 3.10.1
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/nettle/nettle-3.10.1.tar.gz
 source_sha256: b0fcdd7fc0cdea6e80dcf1dd85ba794af0d5b4a57e26397eee3bc193272d9132
 artifact: nettle-3.10.1-1.x86_64.oaa
-artifact_sha256: 5f3c7ca9fd2e37ce649b8e36dc299ffdc814153dcc57a03f82cd20ca10d0f089
+artifact_sha256: bce84b89b9ba56f94827985139c28c043a8bfc6eca49d27da6a8a86af88619ba

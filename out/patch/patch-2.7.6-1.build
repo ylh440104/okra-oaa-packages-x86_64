@@ -3,9 +3,9 @@ version: 2.7.6
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/patch/patch-2.7.6.tar.xz
 source_sha256: ac610bda97abe0d9f6b7c963255a11dcb196c25e337c61f94e4778d632f1d8fd
 artifact: patch-2.7.6-1.x86_64.oaa
-artifact_sha256: ad565631e39f2ddffc6067c13107fd3a5f3df90c13dc531a356b5b3558bcfc5b
+artifact_sha256: da003ba5845aabb3ea76845e10ccbf3961ec01d404191ccf7abd2ef2743f81bd

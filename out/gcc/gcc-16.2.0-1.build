@@ -3,9 +3,9 @@ version: 16.2.0
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/gcc/gcc-16.2.0/gcc-16.2.0.tar.xz
 source_sha256: e6738e29597f733270731aa90600f37ffdc045079dfc27ec7e8192cc81085c3e
 artifact: gcc-16.2.0-1.x86_64.oaa
-artifact_sha256: d564328965c872dc24ff3e2f5af62d79930529d015fef3ffe7d92dfea7dee04b
+artifact_sha256: ad734f759420732864b60dd98c0748e33fa6d2c670a4fc95cafe319368181d34

@@ -3,9 +3,9 @@ version: 1.17
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/automake/automake-1.17.tar.xz
 source_sha256: 8920c1fc411e13b90bf704ef9db6f29d540e76d232cb3b2c9f4dc4cc599bd990
 artifact: automake-1.17-1.x86_64.oaa
-artifact_sha256: 9c36e7460496c06670a32aa83fbc36d8dd86c3063158c893a0eab1efee4855e6
+artifact_sha256: 8399d35b6df37f41e3e263cf0ba1626f665af935d240aacf9dfce280aca4cb71

@@ -3,9 +3,9 @@ version: 4.0.5
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://gitlab.com/procps-ng/procps/-/archive/v4.0.5/procps-v4.0.5.tar.gz
 source_sha256: 2c6d7ed9f2acde1d4dd4602c6172fe56eff86953fe8639bd633dbd22cc18f5db
 artifact: procps-4.0.5-1.x86_64.oaa
-artifact_sha256: 94ff8af54019b4a904dcef0024f8f2a56c1cf22b9518eb2a092dd1af73cdde43
+artifact_sha256: 0b039cbaaeee0e1e2eb5d2e96d01f2cc21c903f8ac039e18ebffc6aceab2e367

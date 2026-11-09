@@ -3,9 +3,9 @@ version: 8.4
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/nano/nano-8.4.tar.xz
 source_sha256: 5ad29222bbd55624d87ea677928b3106a743114d6c6f9b41f36c97be2a8e628d
 artifact: nano-8.4-1.x86_64.oaa
-artifact_sha256: 81b9fa8ec9fbb9db235f51be9ca468c1772e6717e30e9ad15fb682d77467a985
+artifact_sha256: 2ec089562137f518d727d5fa3ae0fceb4b09130e35b283a3326f231e9bf20aef

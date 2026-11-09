@@ -3,9 +3,9 @@ version: 2.6.4
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://github.com/westes/flex/releases/download/v2.6.4/flex-2.6.4.tar.gz
 source_sha256: e87aae032bf07c26f85ac0ed3250998c37621d95f8bd748b31f15b33c45ee995
 artifact: flex-2.6.4-1.x86_64.oaa
-artifact_sha256: 394fc75a5cab663f9da2f993a621e3bb3aa175bde316757ddb8e0e02cd2cbaec
+artifact_sha256: 23db159ecda349f8de8d6bb1910acfd47dd7b77cb42182ac9ea15f43642de9af

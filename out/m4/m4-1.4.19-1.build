@@ -3,9 +3,9 @@ version: 1.4.19
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/m4/m4-1.4.19.tar.xz
 source_sha256: 63aede5c6d33b6d9b13511cd0be2cac046f2e70fd0a07aa9573a04a82783af96
 artifact: m4-1.4.19-1.x86_64.oaa
-artifact_sha256: df39ba1d6e3fee686be6dadeaebcd462d5e7c3fcea155ab3edaca814a36536a3
+artifact_sha256: 685f3ce53866d227dbe1e865f8523ee72a9fe76aacbb4dadcbbb863f3e2eddc3

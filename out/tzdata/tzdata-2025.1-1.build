@@ -1,0 +1,11 @@
+package: app.tzdata
+version: 2025.1
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
+elf_machine: 62
+source: https://data.iana.org/time-zones/releases/tzdata2025a.tar.gz
+source_sha256: 4d5fcbc72c7c450ebfe0b659bd0f1c02fbf52fd7f517a9ea13fe71c21eb5f0d0
+artifact: tzdata-2025.1-1.x86_64.oaa
+artifact_sha256: cc44528bde23421b5fcb938c5ac195f8b8bd1e0e72c8e21b11f6f66a1411249b

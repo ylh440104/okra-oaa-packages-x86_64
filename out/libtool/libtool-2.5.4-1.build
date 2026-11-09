@@ -3,9 +3,9 @@ version: 2.5.4
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/libtool/libtool-2.5.4.tar.xz
 source_sha256: f81f5860666b0bc7d84baddefa60d1cb9fa6fceb2398cc3baca6afaa60266675
 artifact: libtool-2.5.4-1.x86_64.oaa
-artifact_sha256: 517350517400cace5637334e4ee2be95eae69a9da56b3045af182f2aa67f2448
+artifact_sha256: b0f6c2d3a6d7f5581356954737f77bd12b7c8b79ca9365d967d1ac4cde1754e7

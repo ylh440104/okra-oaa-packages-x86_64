@@ -3,9 +3,9 @@ version: 1.3.6
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://downloads.sourceforge.net/project/libtirpc/libtirpc/1.3.6/libtirpc-1.3.6.tar.bz2
 source_sha256: bbd26a8f0df5690a62a47f6aa30f797f3ef8d02560d1bc449a83066b5a1d3508
 artifact: libtirpc-1.3.6-1.x86_64.oaa
-artifact_sha256: feb28ff16ae5362c219e6ecc502690889cb1446b6fac307a7b37ab591c48d2ac
+artifact_sha256: 298d103553b2715cee32383909909b8d24a2e690f48dd76490f54b9ac3537d25

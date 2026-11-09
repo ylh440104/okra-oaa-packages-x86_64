@@ -1,0 +1,11 @@
+package: app.dbus
+version: 1.14.10
+release: 1
+target_arch: x86_64
+host_arch: x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
+elf_machine: 62
+source: https://dbus.freedesktop.org/releases/dbus/dbus-1.14.10.tar.xz
+source_sha256: ba1f21d2bd9d339da2d4aa8780c09df32fea87998b73da24f49ab9df1e36a50f
+artifact: dbus-1.14.10-1.x86_64.oaa
+artifact_sha256: 907c56c371f42d0f5feeef8338f69380905749a0162918cca426eb5f734f8a23

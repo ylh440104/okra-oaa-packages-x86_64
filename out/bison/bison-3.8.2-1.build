@@ -3,9 +3,9 @@ version: 3.8.2
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/bison/bison-3.8.2.tar.xz
 source_sha256: 9bba0214ccf7f1079c5d59210045227bcf619519840ebfa80cd3849cff5a5bf2
 artifact: bison-3.8.2-1.x86_64.oaa
-artifact_sha256: 5aca72cfef35b979750174c42e0ce00a2e31b60d5137525998fb234e9afa071b
+artifact_sha256: 1c5ac0c27fd41fea5b554b87bc06b9e08ac3d16cd05e4862fb52b8a721af6385

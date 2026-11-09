@@ -3,9 +3,9 @@ version: 8.12.1
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://curl.se/download/curl-8.12.1.tar.xz
 source_sha256: 0341f1ed97a26c811abaebd37d62b833956792b7607ea3f15d001613c76de202
 artifact: curl-8.12.1-1.x86_64.oaa
-artifact_sha256: 02fb324b8b6e001b21ed2457b9a4ea72f156433cb011523d44b60f665613f864
+artifact_sha256: 592e3d6eb3cfb9edd155143081e1526568fcf15efe49427e8270c20825752d96

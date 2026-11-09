@@ -3,9 +3,9 @@ version: 1.35
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/tar/tar-1.35.tar.xz
 source_sha256: 4d62ff37342ec7aed748535323930c7cf94acf71c3591882b26a7ea50f3edc16
 artifact: tar-1.35-1.x86_64.oaa
-artifact_sha256: 2865c3c7b889876d9df0d5133aaee7f9d98a437ef9e38eb0a2309b077c309579
+artifact_sha256: 35dd9fb3b98c586b20e45e269e94c7e3907f6ef564278b8e178b8697ecabc3e3

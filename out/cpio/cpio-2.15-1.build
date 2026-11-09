@@ -3,9 +3,9 @@ version: 2.15
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/cpio/cpio-2.15.tar.bz2
 source_sha256: 937610b97c329a1ec9268553fb780037bcfff0dcffe9725ebc4fd9c1aa9075db
 artifact: cpio-2.15-1.x86_64.oaa
-artifact_sha256: 6729a286b48d882d458b26e816807c89969a831b091de485bd02ac99c87ad706
+artifact_sha256: 96c754f13eaf8425161496143e2794b16851dbeb23c828c361bf4802086efbb8

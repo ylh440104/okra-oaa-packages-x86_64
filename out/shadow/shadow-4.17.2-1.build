@@ -3,9 +3,9 @@ version: 4.17.2
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://github.com/shadow-maint/shadow/releases/download/4.17.2/shadow-4.17.2.tar.xz
 source_sha256: a21cf0d34bffc4314cede01cff258689174fab30ca494ae8f45784d3d56c9849
 artifact: shadow-4.17.2-1.x86_64.oaa
-artifact_sha256: f34c26da9677be982e17ee83433824d6a4478237b7b35aff377e942e395b0d6d
+artifact_sha256: a7d0cc2c1a82bdbefbae6139394662269f8320b570ae5ed0830b7403a1e6613b

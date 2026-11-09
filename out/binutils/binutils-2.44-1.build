@@ -3,9 +3,9 @@ version: 2.44
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/binutils/binutils-2.44.tar.xz
 source_sha256: ce2017e059d63e67ddb9240e9d4ec49c2893605035cd60e92ad53177f4377237
 artifact: binutils-2.44-1.x86_64.oaa
-artifact_sha256: 614a703558d0a771a46bbddfae43ad87e92bb5bf970fbb27e75d51b392a21434
+artifact_sha256: 6c1511ea84f74dc325e6ccbcb7b49bc0d3324bf73c2026d6944239a628438318

@@ -3,9 +3,9 @@ version: 4.20.0
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/libtasn1/libtasn1-4.20.0.tar.gz
 source_sha256: 92e0e3bd4c02d4aeee76036b2ddd83f0c732ba4cda5cb71d583272b23587a76c
 artifact: libtasn1-4.20.0-1.x86_64.oaa
-artifact_sha256: 3630446cb856d9821ab39e0f33a2fba416b0b8011af2b23012222b99cf6a285e
+artifact_sha256: a9063bf0bab9580024088eba09a931f95d0fa07196514c798dbac8bacfea12f8

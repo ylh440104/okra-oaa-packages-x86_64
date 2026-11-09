@@ -3,9 +3,9 @@ version: 9.6
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/coreutils/coreutils-9.6.tar.xz
 source_sha256: 7a0124327b398fd9eb1a6abde583389821422c744ffa10734b24f557610d3283
 artifact: coreutils-9.6-1.x86_64.oaa
-artifact_sha256: 8b745e01ae868509d60016a946a1036ffd5667e85f64c9e95fbd14b6f4f5fcaf
+artifact_sha256: 76b3c34eb1ad03439cce5b1e8cc9f6ef7b1e66650a63ee7f9baa14bf409ea3a7

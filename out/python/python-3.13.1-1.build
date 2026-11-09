@@ -3,9 +3,9 @@ version: 3.13.1
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://www.python.org/ftp/python/3.13.1/Python-3.13.1.tar.xz
 source_sha256: 9cf9427bee9e2242e3877dd0f6b641c1853ca461f39d6503ce260a59c80bf0d9
 artifact: python-3.13.1-1.x86_64.oaa
-artifact_sha256: 90c1f73f53ed231f3c83d8e5ca854695905ffc30df9bdc46ec4e8bc852c79599
+artifact_sha256: b5102b28fc532e19a3d650f1a0aeb616460f796f2d6f7d1ee0364c021780ef34

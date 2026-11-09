@@ -2,10 +2,10 @@ package: app.base-files
 version: 1.0
 release: 1
 target_arch: x86_64
-host_arch: aarch64
-host_uname: Linux 5.10.236-android12-9-g544a0d1f1c3d aarch64
+host_arch: x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: none
 source_sha256: none
 artifact: base-files-1.0-1.x86_64.oaa
-artifact_sha256: c8eec872d1db26b908e667d27e9d98a594ffb0ce504d90b06d6f99522fca9a99
+artifact_sha256: ad0c966b3955f31dc5e9d132b7ba5036535901b34a4febfde6f4a74da8f874ec

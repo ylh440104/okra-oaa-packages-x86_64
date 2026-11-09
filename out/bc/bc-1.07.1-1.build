@@ -3,9 +3,9 @@ version: 1.07.1
 release: 1
 target_arch: x86_64
 host_arch: x86_64
-host_uname: Linux 6.17.0-1022-azure x86_64
+host_uname: Linux 7.0.0-1017-azure x86_64
 elf_machine: 62
 source: https://mirrors.kernel.org/gnu/bc/bc-1.07.1.tar.gz
 source_sha256: 62adfca89b0a1c0164c2cdca59ca210c1d44c3ffc46daf9931cf4942664cb02a
 artifact: bc-1.07.1-1.x86_64.oaa
-artifact_sha256: 4283665a09fb0c0bc5fac33a3e7e04d6a43b1c0203b38b82187a3fc311bd0c3e
+artifact_sha256: 5b382b3b17585b92ddac8cd121b82a0781c86e91196fb0c739165e78f9012008
