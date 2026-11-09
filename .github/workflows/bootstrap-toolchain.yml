@@ -158,12 +158,22 @@ jobs:
           # broken repository rather than an expired download. A release asset
           # does not expire, so the seed stays reachable and the artifact is left
           # as what it should be: a cache.
+          #
+          # It goes up in parts: a release asset may not exceed 2 GiB and the
+          # tarball is around 3.6, so a single upload is rejected. The checksum
+          # covers the whole file, which is what the download side verifies after
+          # putting the parts back together.
           Tag=cross-toolchain
           gh release view "$Tag" >/dev/null 2>&1 || gh release create "$Tag" \
             --title "Cross toolchain" \
-            --notes "The seed the bootstrap starts from, built by scripts/build-cross-toolchain.sh. Published because the workflow artifact that holds the same bytes expires after 14 days."
-          gh release upload "$Tag" \
+            --notes "The seed the bootstrap starts from, built by scripts/build-cross-toolchain.sh. Published because the workflow artifact that holds the same bytes expires after 14 days. The tarball is split because a release asset may not exceed 2 GiB: cat the parts back together in name order and check it against the .sha256."
+          rm -f "$RUNNER_TEMP"/okra-cross-toolchain.tar.zst.part*
+          split -b 1800M -d -a 2 \
             "$RUNNER_TEMP/okra-cross-toolchain.tar.zst" \
+            "$RUNNER_TEMP/okra-cross-toolchain.tar.zst.part"
+          ls -l "$RUNNER_TEMP"/okra-cross-toolchain.tar.zst.part* | awk '{print $5, $9}'
+          gh release upload "$Tag" \
+            "$RUNNER_TEMP"/okra-cross-toolchain.tar.zst.part* \
             "$RUNNER_TEMP/okra-cross-toolchain.tar.zst.sha256" --clobber
           gh release view "$Tag" --json assets --jq '.assets | length'
 
