@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/nano/nano-8.4.tar.xz
 source_sha256: 5ad29222bbd55624d87ea677928b3106a743114d6c6f9b41f36c97be2a8e628d
 artifact: nano-8.4-1.x86_64.oaa
-artifact_sha256: 2ec089562137f518d727d5fa3ae0fceb4b09130e35b283a3326f231e9bf20aef
+artifact_sha256: 16017fcb6ca8f5a6d1ac6089cb5af1967608d49d023c79a25676245ab5ee4685

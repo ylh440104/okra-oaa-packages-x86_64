@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://mirrors.kernel.org/gnu/libtool/libtool-2.5.4.tar.xz
 source_sha256: f81f5860666b0bc7d84baddefa60d1cb9fa6fceb2398cc3baca6afaa60266675
 artifact: libtool-2.5.4-1.x86_64.oaa
-artifact_sha256: b0f6c2d3a6d7f5581356954737f77bd12b7c8b79ca9365d967d1ac4cde1754e7
+artifact_sha256: a117db96e0a64e418e175ef43b949131e5153dd0810246a5a2b2025c252f4cda

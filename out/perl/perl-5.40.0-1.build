@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://www.cpan.org/src/5.0/perl-5.40.0.tar.gz
 source_sha256: c740348f357396327a9795d3e8323bafd0fe8a5c7835fc1cbaba0cc8dfe7161f
 artifact: perl-5.40.0-1.x86_64.oaa
-artifact_sha256: 6e66f9b3c32419cf1dd3b9035fd32f86897e1ef1b804b037c7bc178ba9348f16
+artifact_sha256: c24de7138b443cdadda97724e6401f7073d99878517708aed07cafe15399831b

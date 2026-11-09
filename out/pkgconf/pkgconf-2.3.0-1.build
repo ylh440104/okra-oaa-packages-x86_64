@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://distfiles.ariadne.space/pkgconf/pkgconf-2.3.0.tar.xz
 source_sha256: 3a9080ac51d03615e7c1910a0a2a8df08424892b5f13b0628a204d3fcce0ea8b
 artifact: pkgconf-2.3.0-1.x86_64.oaa
-artifact_sha256: 2bc35f252416a02c320a322ab65b7d765ca494749e414f4c74fb62b20d2d1fdf
+artifact_sha256: 064c5cfe4de15d477ee9f4d201df197abe11795e739a24fe30d269f49767d881

@@ -8,4 +8,4 @@ elf_machine: 62
 source: none
 source_sha256: none
 artifact: base-files-1.0-1.x86_64.oaa
-artifact_sha256: ad0c966b3955f31dc5e9d132b7ba5036535901b34a4febfde6f4a74da8f874ec
+artifact_sha256: 039ccdf73bb298027491f390db6898356b8a8bdcf6d429ef1d78ce1216ee6725

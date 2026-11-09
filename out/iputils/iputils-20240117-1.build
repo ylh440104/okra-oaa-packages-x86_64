@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/iputils/iputils/releases/download/20240117/iputils-20240117.tar.xz
 source_sha256: 2c3f1f4d6f2481dec05b441de9c81d4059bdb202d4d0e98404f62ee1502bf1dc
 artifact: iputils-20240117-1.x86_64.oaa
-artifact_sha256: 0f6499825732d976c0ab6060891e4e2ea1e633cae9241ffa5921eb782ad88faa
+artifact_sha256: 1cfa380dfd82199af84f432c37f164530acb710036df0e2d86c9fe6ca8f969f4

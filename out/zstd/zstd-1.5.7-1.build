@@ -8,4 +8,4 @@ elf_machine: 62
 source: https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz
 source_sha256: eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3
 artifact: zstd-1.5.7-1.x86_64.oaa
-artifact_sha256: c4def4554eea9cb8a9728098ab6a3b68cc642cc22b1b705ff1ada96650715fa0
+artifact_sha256: 8d97df2d65b3ad5ac1806301658df4c84ff4bac03254a1b1d4d6b8388393f35b
