@@ -231,14 +231,19 @@ VerifyElfArchitecture() {
 # BuildFileList() - list the packaged payload paths for meta.yaml.
 # @PackageDirectory: staged package directory holding rootfs/.
 # Return: 0. Prints one /-prefixed path per line.
+#
+# The whole rootfs is walked, not a fixed set of bin and lib directories. The
+# narrower version left /etc and /usr/share out of every manifest, so tzdata
+# (which ships /usr/share/zoneinfo and /etc/timezone) and ca-certificates
+# (which ships /etc/ssl/certs) both came out declaring a single "/" entry, and
+# ncurses declared 35 entries while carrying 2918 terminfo files. A manifest
+# that does not match the payload cannot be used to decide what a package owns,
+# which is what uninstall, file conflicts and upgrades all read.
 BuildFileList() {
 	local PackageDirectory="$1"
-	local SearchDirectory Target FoundFile
-	for SearchDirectory in usr/bin usr/sbin usr/lib usr/lib64 usr/libexec lib lib64 sbin bin; do
-		Target="$PackageDirectory/rootfs/$SearchDirectory"
-		[ -d "$Target" ] || continue
-		while IFS= read -r FoundFile; do
-			printf '/%s/%s\n' "$SearchDirectory" "$FoundFile"
-		done < <(cd "$Target" && find . -mindepth 1 \( -type f -o -type l \) -printf '%P\n' | sort)
-	done
+	[ -d "$PackageDirectory/rootfs" ] || return 0
+	(
+		cd "$PackageDirectory/rootfs" || exit 1
+		find . -mindepth 1 \( -type f -o -type l \) -printf '/%P\n' | sort
+	)
 }

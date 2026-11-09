@@ -26,12 +26,17 @@ Dependencies=()
 ExtraPackages=()
 Architecture=""
 Abi="OAABI1"
+# 1 for a recipe that only writes files: there is nothing to fetch and no
+# upstream tarball to checksum.
+NoSource=0
 # shellcheck disable=SC1090
 . "$RecipeFile"
 
 [ -n "$Name" ] || Name="$PackageName"
 [ -n "$Version" ] || { echo "recipe missing Version" >&2; exit 1; }
+if [ "$NoSource" != "1" ]; then
 [ -n "$Url" ] || { echo "recipe missing Url" >&2; exit 1; }
+fi
 [ -n "$Architecture" ] || Architecture="$(OkraTargetArch)"
 RequireTargetHost
 
@@ -56,22 +61,26 @@ export LDFLAGS="${LDFLAGS:--Wl,-z,relro,-z,now -Wl,-z,noexecstack}"
 InstallBuildDependencies
 ApplyToolchainEnvironment
 
-echo "== fetching source"
-curl -fsSL --http1.1 --retry 5 --retry-delay 3 --retry-all-errors -o "$Archive" "$Url"
-SourceSum="$(sha256sum "$Archive" | awk '{print $1}')"
-echo "source sha256 $SourceSum"
-if [ -n "$Sha256" ] && [ "$Sha256" != "$SourceSum" ]; then
-	echo "checksum mismatch for $Archive" >&2
-	exit 1
-fi
-
 mkdir -p "$SourceDirectory"
-case "$ArchiveFormat" in
-	lz)    lzip -dc "$Archive" | tar -xf - -C "$SourceDirectory" --strip-components=1 ;;
-	plain) cp -f "$Archive" "$SourceDirectory/" ;;
-	flat)  tar -xf "$Archive" -C "$SourceDirectory" ;;
-	*)     tar -xf "$Archive" -C "$SourceDirectory" --strip-components=1 ;;
-esac
+if [ "$NoSource" = "1" ]; then
+	echo "== no source: this recipe writes its payload itself"
+else
+	echo "== fetching source"
+	curl -fsSL --http1.1 --retry 5 --retry-delay 3 --retry-all-errors -o "$Archive" "$Url"
+	SourceSum="$(sha256sum "$Archive" | awk '{print $1}')"
+	echo "source sha256 $SourceSum"
+	if [ -n "$Sha256" ] && [ "$Sha256" != "$SourceSum" ]; then
+		echo "checksum mismatch for $Archive" >&2
+		exit 1
+	fi
+
+	case "$ArchiveFormat" in
+		lz)    lzip -dc "$Archive" | tar -xf - -C "$SourceDirectory" --strip-components=1 ;;
+		plain) cp -f "$Archive" "$SourceDirectory/" ;;
+		flat)  tar -xf "$Archive" -C "$SourceDirectory" ;;
+		*)     tar -xf "$Archive" -C "$SourceDirectory" --strip-components=1 ;;
+	esac
+fi
 
 if declare -f Build > /dev/null; then
 	echo "== custom build"
@@ -162,14 +171,16 @@ done
 	else
 		echo "dependencies: []"
 	fi
-	echo "files:"
-	if [ -n "$(BuildFileList "$PackageDirectory")" ]; then
-		while IFS= read -r ListedFile; do
-			[ -n "$ListedFile" ] || continue
-			echo "  - $ListedFile"
-		done < <(BuildFileList "$PackageDirectory")
+	FileList="$(BuildFileList "$PackageDirectory")"
+	if [ -n "$FileList" ]; then
+		echo "files:"
+		printf '%s\n' "$FileList" | sed 's/^/  - /'
 	else
-		echo "  - /"
+		# An empty manifest says the package ships nothing, which is at least
+		# true. The "/" that used to be written here claimed every path on the
+		# system, so any two such packages looked like they owned each other's
+		# files and no file could be attributed to anyone.
+		echo "files: []"
 	fi
 } > "$PackageDirectory/meta.yaml"
 
@@ -213,8 +224,14 @@ MetadataOutput="$OutputDirectory/$Name"
 rm -rf "$MetadataOutput"
 mkdir -p "$MetadataOutput"
 cp -f "$ArtifactDirectory/$ArchiveName.sha256" "$MetadataOutput/"
-echo "${SourceSum}  ${Url}" > "$MetadataOutput/${Name}-${Version}-${Release}.sources"
-echo "${SourceSum}  ${Url}" > "$ArtifactDirectory/${Name}-${Version}-${Release}.sources"
+if [ "$NoSource" = "1" ]; then
+	# There is no source tarball, so there is nothing to record a checksum of.
+	# Writing an empty one would look like a fetch that produced no bytes.
+	echo "== no source to record for $Namespace.$Name"
+else
+	echo "${SourceSum}  ${Url}" > "$MetadataOutput/${Name}-${Version}-${Release}.sources"
+	echo "${SourceSum}  ${Url}" > "$ArtifactDirectory/${Name}-${Version}-${Release}.sources"
+fi
 
 # A build record makes the architecture claim auditable after the fact.
 {
@@ -225,8 +242,13 @@ echo "${SourceSum}  ${Url}" > "$ArtifactDirectory/${Name}-${Version}-${Release}.
 	echo "host_arch: $(OkraHostArch)"
 	echo "host_uname: $(uname -srm)"
 	echo "elf_machine: $(ElfMachineForArch "$Architecture")"
-	echo "source: $Url"
-	echo "source_sha256: $SourceSum"
+	if [ "$NoSource" = "1" ]; then
+		echo "source: none"
+		echo "source_sha256: none"
+	else
+		echo "source: $Url"
+		echo "source_sha256: $SourceSum"
+	fi
 	echo "artifact: $ArchiveName"
 	echo "artifact_sha256: $(awk '{print $1}' "$ArtifactDirectory/$ArchiveName.sha256")"
 } > "$ArtifactDirectory/${Name}-${Version}-${Release}.build"
