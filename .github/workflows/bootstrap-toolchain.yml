@@ -51,6 +51,11 @@ jobs:
   toolchain:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
+    # Uploading the seed to a release needs write access; everything else in this
+    # job only reads.
+    permissions:
+      contents: write
+      actions: read
     outputs:
       reused: ${{ steps.reuse.outputs.reused }}
     steps:
@@ -140,6 +145,27 @@ jobs:
             ${{ runner.temp }}/okra-cross-toolchain.tar.zst.sha256
           if-no-files-found: error
           retention-days: 14
+
+      - name: Publish the seed where it does not expire
+        if: steps.reuse.outputs.reused != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          # The artifact above is gone after 14 days, and it is the only thing the
+          # whole bootstrap chain starts from. When it expired the chain stopped
+          # with "no published cross toolchain is available", which reads like a
+          # broken repository rather than an expired download. A release asset
+          # does not expire, so the seed stays reachable and the artifact is left
+          # as what it should be: a cache.
+          Tag=cross-toolchain
+          gh release view "$Tag" >/dev/null 2>&1 || gh release create "$Tag" \
+            --title "Cross toolchain" \
+            --notes "The seed the bootstrap starts from, built by scripts/build-cross-toolchain.sh. Published because the workflow artifact that holds the same bytes expires after 14 days."
+          gh release upload "$Tag" \
+            "$RUNNER_TEMP/okra-cross-toolchain.tar.zst" \
+            "$RUNNER_TEMP/okra-cross-toolchain.tar.zst.sha256" --clobber
+          gh release view "$Tag" --json assets --jq '.assets | length'
 
   bootstrap:
     needs: toolchain
